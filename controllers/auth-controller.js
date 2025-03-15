@@ -1,10 +1,17 @@
 import { User } from "../models/user.model.js"
 import bcrypt from "bcryptjs"
 import jwt from 'jsonwebtoken'
+import { LoginUser, UserSchema } from "../validation/auth.validation.js";
 
 const signup = async (req, res) => {
     try {
-        const { fullName, email, password } = req.body;
+        const { data, error } = UserSchema.safeParse(req.body)
+        if (error) {
+            res.json({
+                message: error.errors[0].message
+            })
+        }
+        const { fullName, email, password } = data;
         const userExists = await User.findOne({ email })
         if (userExists) return res.status(400).json({
             msg: "Email Already Exists"
@@ -24,7 +31,13 @@ const signup = async (req, res) => {
 
 const login = async (req, res) => {
     try {
-        const { email, password } = req.body;
+        const { data, error } = LoginUser.safeParse(req.body)
+        if (error) {
+            res.json({
+                message: error.errors[0].message
+            })
+        }
+        const { email, password } = data;
         const userExists = await User.findOne({ email })
         if (!userExists) {
             // Never let anyone know what is wrong where. eg. hackers
