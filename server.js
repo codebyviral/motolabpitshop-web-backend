@@ -53,7 +53,7 @@ app.use(session({
     saveUninitialized: true,
     cookie: {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production', 
+        secure: process.env.NODE_ENV === 'production',
         sameSite: "none",
     }
 }))
@@ -111,7 +111,9 @@ app.get("/auth/google/callback", passport.authenticate("google", {
 }))
 
 app.get("/login/success", async (req, res) => {
-    console.log(`Resolving successful login: ${req.user}`)
+    console.log(`Session ID: ${req.sessionID}`);
+    console.log(`Session data: ${JSON.stringify(req.session)}`);
+    console.log(`User data: ${JSON.stringify(req.user)}`);
     if (req.user) {
         res.status(200).json({
             message: "User has logged in",
