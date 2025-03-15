@@ -18,7 +18,7 @@ import { Strategy as OAuth2Strategy } from "passport-google-oauth2"
 import { User } from "./models/user.model.js"
 
 const app = express();
-const port = process.env.PORT || 8000;
+const port = 8000;
 
 const clientID = process.env.CLIENT_ID
 const clientSecret = process.env.CLIENT_SECRET
