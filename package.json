@@ -1,25 +1,17 @@
 {
-  "name": "motolabpitshop",
+  "name": "moto-backend-new",
   "version": "1.0.0",
-  "description": "motolabpitshop",
-  "main": "index.js",
-  "type": "module",
+  "description": "A robust Express.js backend API for MotoLabPitShop - providing authentication, order management, and admin functionalities.",
+  "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon server.js"
+    "start": "node server.js"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/codebyviral/motolabpitshop-backend.git"
   },
-  "keywords": [
-    "motolabpitshop",
-    "moto",
-    "motolab",
-    "motolab",
-    "ecommerce"
-  ],
-  "author": "Viral Vaghela",
+  "author": "",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/codebyviral/motolabpitshop-backend/issues"
