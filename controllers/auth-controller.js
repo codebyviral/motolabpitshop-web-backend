@@ -7,7 +7,7 @@ const signup = async (req, res) => {
     try {
         const { data, error } = UserSchema.safeParse(req.body)
         if (error) {
-            res.json({
+            return res.json({
                 message: error.errors[0].message
             })
         }
@@ -33,11 +33,13 @@ const login = async (req, res) => {
     try {
         const { data, error } = LoginUser.safeParse(req.body)
         if (error) {
-            res.json({
+           return res.json({
                 message: error.errors[0].message
             })
         }
+
         const { email, password } = data;
+        console.log(data);
         const userExists = await User.findOne({ email })
         if (!userExists) {
             // Never let anyone know what is wrong where. eg. hackers
