@@ -5,19 +5,19 @@ import bcrypt from 'bcryptjs'
 const userSchema = new mongoose.Schema({
     googleId: {
         type: String,
-        require: false,
+        required : false,
     },
     fullName: {
         type: String,
-        require: true,
+        required : true,
     },
     email: {
         type: String,
-        require: true,
+        required : true,
     },
     password: {
         type: String,
-        require: true,
+        required : true,
     },
     isAdmin: {
         type: Boolean,

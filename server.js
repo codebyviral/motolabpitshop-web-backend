@@ -26,9 +26,9 @@ const devFrontendUrl = process.env.DEV_FRONTEND_URL;
 
 const corsOptions = {
     origin: process.env.CORS_ORIGIN,
-    method: "GET, POST, DELETE, PATCH, HEAD, PUT",
+    methods: ["GET", "POST", "DELETE", "PATCH", "PUT"],
     credentials: true,
-    allowedHeaders: "Content-Type, Authorization , multipart/form-data"
+    allowedHeaders: ["Content-Type", "Authorization", "multipart/form-data"],
 }
 
 app.use(cors(corsOptions))

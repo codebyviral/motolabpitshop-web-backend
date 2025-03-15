@@ -7,7 +7,7 @@ export const productController = async (req, res) => {
         console.log("Request Files:", req.files); // Debugging
         const { data, error } = ProductSchema.safeParse(req.body)
                 if (error) {
-                    res.json({
+                return res.json({
                         message: error.errors[0].message
                     })
                 }
@@ -40,7 +40,7 @@ export const productController = async (req, res) => {
             return res.status(500).json({ error: "Image upload to Cloudinary failed." });
         }
 
-        // Convert price & rating to Number (since form-data sends everything as a string)
+        
         const newProduct = await Product.create({
             title,
             description,
