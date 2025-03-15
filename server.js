@@ -51,6 +51,11 @@ app.use(session({
     secret: "19ghvbd4n3hd78chdfg43hsu",
     resave: false,
     saveUninitialized: true,
+    cookie: {
+        httpOnly: true,
+        secure: true,
+        sameSite: "none",
+    }
 }))
 
 // setup passport
