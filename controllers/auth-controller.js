@@ -1,0 +1,54 @@
+import { User } from "../models/user.model.js"
+import bcrypt from "bcryptjs"
+import jwt from 'jsonwebtoken'
+
+const signup = async (req, res) => {
+    try {
+        const { fullName, email, password } = req.body;
+        const userExists = await User.findOne({ email })
+        if (userExists) return res.status(400).json({
+            msg: "Email Already Exists"
+        })
+        const hashed_password = await bcrypt.hash(password, 10)
+        const newUser = await new User({
+            fullName,
+            email,
+            password: hashed_password
+        })
+        newUser.save();
+        return res.status(200).json({ msg: "Success" })
+    } catch (error) {
+        console.log(`Error during signup from controller: ${error}`)
+    }
+}
+
+const login = async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        const userExists = await User.findOne({ email })
+        if (!userExists) {
+            // Never let anyone know what is wrong where. eg. hackers
+            return res.status(400).json({ msg: 'Invalid Credentials' })
+        }
+        const user = await userExists.comparePassword(password)
+
+        if (user) {
+            res.status(200).json({
+                message: 'Login successful',
+                token: await userExists.generateAuthToken(),
+                userId: await userExists._id.toString(),
+                isAdmin: await userExists.isAdmin,
+                imageUrl: await userExists.avatar,
+            })
+        } else {
+            res.status(401).json({ message: 'Invalid email or password.' })
+        }
+    } catch (error) {
+        res.status(500).send('Internal Server Error')
+        console.log('login controller error', error)
+    }
+}
+
+const authControllers = { signup, login }
+
+export { authControllers }
