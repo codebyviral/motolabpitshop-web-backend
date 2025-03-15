@@ -48,7 +48,7 @@ app.use("/api/upload", Productrouter)
 
 // setup session
 app.use(session({
-    secret: "19ghvbd4n3hd78chdfg43hsu",
+    secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: true,
     cookie: {
