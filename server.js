@@ -26,6 +26,20 @@ const corsOptions = {
 app.use(cors(corsOptions))
 app.use(express.json());
 
+// setup session
+app.use(session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: true,
+}))
+app.use(express.urlencoded());
+app.use(express.static("public", { index: false }));
+
+// setup passport
+
+app.use(passport.initialize())
+app.use(passport.session())
+
 ////////////////////////////////
 //////LIST OF ALL APIS /////////
 ////////////////////////////////
@@ -33,18 +47,6 @@ app.use(express.json());
 app.use("/api/auth", authRouter)
 app.use("/api/admin", adminRouter)
 app.use("/api/order", orderRouter)
-
-// setup session
-app.use(session({
-    secret: process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: true,
-}))
-
-// setup passport
-
-app.use(passport.initialize())
-app.use(passport.session())
 
 passport.use(
     new OAuth2Strategy({
