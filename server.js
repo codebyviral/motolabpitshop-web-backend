@@ -106,6 +106,7 @@ app.get("/auth/google/callback", passport.authenticate("google", {
 }))
 
 app.get("/login/success", async (req, res) => {
+    console.log(`Resolving successful login: ${req.user}`)
     if (req.user) {
         res.status(200).json({
             message: "User has logged in",
