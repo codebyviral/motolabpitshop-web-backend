@@ -4,14 +4,6 @@ import cors from "cors";
 import adminRouter from "./router/admin-router.js"
 import authRouter from "./router/auth-router.js"
 import orderRouter from "./router/order-router.js"
-
-import dotenv from "dotenv";
-import Productrouter from "./router/product-router.js";
-
-dotenv.config({
-    path: ".env"
-});
-
 import session from "express-session"
 import passport from "passport"
 import { Strategy as OAuth2Strategy } from "passport-google-oauth2"
@@ -25,17 +17,14 @@ const clientSecret = process.env.CLIENT_SECRET
 const devFrontendUrl = process.env.DEV_FRONTEND_URL;
 
 const corsOptions = {
-    origin: process.env.CORS_ORIGIN,
-    methods: ["GET", "POST", "DELETE", "PATCH", "PUT"],
+    origin: [devFrontendUrl],
+    method: "GET, POST, DELETE, PATCH, HEAD, PUT",
     credentials: true,
-    allowedHeaders: ["Content-Type", "Authorization", "multipart/form-data"],
+    allowedHeaders: "Content-Type, Authorization"
 }
 
 app.use(cors(corsOptions))
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(express.static("public"));
-
 
 ////////////////////////////////
 //////LIST OF ALL APIS /////////
@@ -44,18 +33,12 @@ app.use(express.static("public"));
 app.use("/api/auth", authRouter)
 app.use("/api/admin", adminRouter)
 app.use("/api/order", orderRouter)
-app.use("/api/upload", Productrouter)
 
 // setup session
 app.use(session({
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: true,
-    cookie: {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: "none",
-    }
 }))
 
 // setup passport
@@ -111,9 +94,7 @@ app.get("/auth/google/callback", passport.authenticate("google", {
 }))
 
 app.get("/login/success", async (req, res) => {
-    console.log(`Session ID: ${req.sessionID}`);
-    console.log(`Session data: ${JSON.stringify(req.session)}`);
-    console.log(`User data: ${JSON.stringify(req.user)}`);
+
     if (req.user) {
         res.status(200).json({
             message: "User has logged in",
