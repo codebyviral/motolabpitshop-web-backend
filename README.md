@@ -128,4 +128,4 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## 📧 Contact
 
-Project Maintainer: [Viral Vaghela](mailto:your.email@example.com)
+Project Maintainer: [Viral Vaghela , Divyesh Moraniya](mailto:your.email@example.com)
