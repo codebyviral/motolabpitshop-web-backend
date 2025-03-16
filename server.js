@@ -120,10 +120,12 @@ app.get("/logout", (req, res, next) => {
 })
 
 app.get("/", (req, res) => {
+    console.log(`Someone said hi to our backend server.`)
     res.send(`This is Motolabpitshop Backend server`)
 })
 
-connectToDataBase().then(() => {
+await connectToDataBase().then(() => {
+    console.log(`Connecting to mongodatabase...`)
     app.listen(port, () => {
         console.log(`Motolabpitshop Server is running on port: ${port}`)
     })
