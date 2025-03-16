@@ -30,7 +30,12 @@ app.use(express.json());
 app.use(session({
     secret: process.env.SESSION_SECRET,
     resave: false,
-    saveUninitialized: true,
+    saveUninitialized: false,
+    cookie:{
+        httpOnly:true,
+        secure:true,
+        sameSite:'none'
+    }
 }))
 app.use(express.urlencoded());
 app.use(express.static("public", { index: false }));
