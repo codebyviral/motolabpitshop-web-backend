@@ -17,7 +17,7 @@ const clientSecret = process.env.CLIENT_SECRET
 const devFrontendUrl = process.env.DEV_FRONTEND_URL;
 
 const corsOptions = {
-    origin: [devFrontendUrl],
+    origin: "http://localhost:5173",
     method: "GET, POST, DELETE, PATCH, HEAD, PUT",
     credentials: true,
     allowedHeaders: "Content-Type, Authorization"
