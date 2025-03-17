@@ -1,6 +1,7 @@
 import { User } from "../models/user.model.js"
 import bcrypt from "bcryptjs"
 import jwt from 'jsonwebtoken'
+import { sendWelcomeEmail } from "../services/email.service.js"
 import { LoginUser, UserSchema } from "../validation/auth.validation.js";
 
 const signup = async (req, res) => {
@@ -24,6 +25,7 @@ const signup = async (req, res) => {
             isAdmin: "false"
         })
         await newUser.save();
+        await sendWelcomeEmail(fullName, email, "Welcome to MotoLab PitShop!");
         return res.status(200).json({ msg: "Success" })
     } catch (error) {
         console.log(`Error during signup from controller: ${error}`)

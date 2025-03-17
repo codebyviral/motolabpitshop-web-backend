@@ -31,10 +31,10 @@ app.use(session({
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
-    cookie:{
-        httpOnly:true,
-        secure:true,
-        sameSite:'none'
+    cookie: {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'none'
     }
 }))
 app.use(express.urlencoded());
