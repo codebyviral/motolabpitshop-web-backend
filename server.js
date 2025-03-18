@@ -1,13 +1,21 @@
+// ========================== Imports =========================== //
 import express from "express";
 import { connectToDataBase } from "./config/db.js"
 import cors from "cors";
+// ========================== Router Imports =========================== //
 import adminRouter from "./router/admin-router.js"
 import authRouter from "./router/auth-router.js"
 import orderRouter from "./router/order-router.js"
+import paymentRouter from "./router/payment-router.js"
+import Productrouter from "./router/product-router.js"
+// ========================== Sessions & Middleware =========================== //
 import session from "express-session"
 import passport from "passport"
 import { Strategy as OAuth2Strategy } from "passport-google-oauth2"
+// ========================== DB Models =========================== //
 import { User } from "./models/user.model.js"
+// ========================== Payment Gateway =========================== //
+import Razorpay from 'razorpay';
 
 const app = express();
 const port = process.env.PORT || 8000;
@@ -45,13 +53,16 @@ app.use(express.static("public", { index: false }));
 app.use(passport.initialize())
 app.use(passport.session())
 
-////////////////////////////////
-//////LIST OF ALL APIS /////////
-////////////////////////////////
+// ========================== LIST OF ALL APIS ========================== //
 
 app.use("/api/auth", authRouter)
 app.use("/api/admin", adminRouter)
+app.use("/api/search", orderRouter)
+app.use("/api/get", orderRouter)
 app.use("/api/order", orderRouter)
+app.use("/api/add", Productrouter)
+
+// passport middleware
 
 passport.use(
     new OAuth2Strategy({
@@ -92,7 +103,7 @@ passport.deserializeUser((user, done) => {
     done(null, user)
 })
 
-// initialize google oauth login
+// ========================== INITIALIZE GOOGLE OAUTH LOGIN ========================== //
 app.get("/auth/google", passport.authenticate("google", { scope: ["profile", "email"] }));
 
 app.get("/auth/google/callback", passport.authenticate("google", {
@@ -118,6 +129,15 @@ app.get("/logout", (req, res, next) => {
         res.redirect(devFrontendUrl);
     })
 })
+
+// ========================== RAZORPAY SETUP ========================== //
+
+export const instance = new Razorpay({
+    key_id: process.env.RAZORPAY_KEY_ID,
+    key_secret: process.env.RAZORPAY_KEY_SECRET
+})
+
+app.use("/api", paymentRouter)
 
 app.get("/", (req, res) => {
     console.log(`Someone said hi to our backend server.`)

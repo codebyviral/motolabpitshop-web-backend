@@ -55,6 +55,30 @@ const createOrder = async (req, res) => {
     }
 };
 
-const orderControllers = { createOrder };
+const getProductById = async (req, res) => {
+    try {
+        const { productId } = req.body;
+        const product = await Product.findById(productId);
+        return res.status(200).json({ success: true, product })
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({ error })
+    }
+}
+
+const generateFeatureProducts = async (req, res) => {
+    try {
+        const products = await Product.find();
+        const getRandomProducts = (arr) => arr.sort(() => 0.5 - Math.random()).slice(0, 4);
+        const featuredProducts = getRandomProducts(products);
+        return res.status(200).json({success: true,featuredProducts})
+
+    } catch (error) {
+        console.log(`Error generating featured products: ${error}`);
+        return res.status(500).json({ error })
+    }
+}
+
+const orderControllers = { createOrder, getProductById , generateFeatureProducts };
 
 export { orderControllers };
