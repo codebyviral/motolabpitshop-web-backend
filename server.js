@@ -28,7 +28,7 @@ const corsOptions = {
     origin: process.env.CORS_ORIGIN,
     method: "GET, POST, DELETE, PATCH, HEAD, PUT",
     credentials: true,
-    allowedHeaders: "Content-Type, Authorization"
+    allowedHeaders: "Content-Type, Authorization , multipart/form-data"
 }
 
 app.use(cors(corsOptions))
@@ -61,8 +61,6 @@ app.use("/api/search", orderRouter)
 app.use("/api/get", orderRouter)
 app.use("/api/order", orderRouter)
 app.use("/api/add", Productrouter)
-
-// passport middleware
 
 passport.use(
     new OAuth2Strategy({
