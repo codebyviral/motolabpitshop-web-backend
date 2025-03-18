@@ -1,20 +1,19 @@
 import { Product } from "../models/product.model.js";
 import { uploadCloudinery } from "../utils/cloudinary.utils.js";
-import {ProductSchema }from "../validation/auth.validation.js"
+import { ProductSchema } from "../validation/auth.validation.js";
+
 export const productController = async (req, res) => {
     try {
         console.log("Request Body:", req.body); // Debugging
-        console.log("Request Files:", req.files); // Debugging
-        const { data, error } = ProductSchema.safeParse(req.body)
-                if (error) {
-                return res.json({
-                        message: error.errors[0].message
-                    })
-                }
-        // Multer stores form-data fields separately, parse it correctly
+        console.log("Request File:", req.file); // Debugging (Changed from req.files to req.file)
+
+        const { data, error } = ProductSchema.safeParse(req.body);
+        if (error) {
+            return res.status(400).json({ message: error.errors[0].message });
+        }
+
         const { title, description, price, rating, size, category } = data;
 
-        // Ensure all fields are received
         if (!title || !description || !price || !rating || !size || !category) {
             return res.status(400).json({ error: "Please provide all required fields." });
         }
@@ -24,23 +23,17 @@ export const productController = async (req, res) => {
             return res.status(400).json({ error: "Product already exists." });
         }
 
-        if (!req.files || req.files.length === 0) {
-            return res.status(400).json({ error: "At least one image file is required." });
+        const imagePath = req.files.images[0]?.path || null;
+        if (!imagePath) {
+            throw new ApiError(400, "Image field is required");
         }
 
-        // Upload to Cloudinary
-        const imageUrls = await Promise.all(
-            req.files.map(async (file) => {
-                const uploadedImage = await uploadCloudinery(file.path);
-                return uploadedImage?.url;
-            })
-        );
-
-        if (!imageUrls || imageUrls.length === 0) {
-            return res.status(500).json({ error: "Image upload to Cloudinary failed." });
+        const image = await uploadCloudinery(imagePath);
+        if (!image) {
+            throw new ApiError(500, "Image upload failed");
         }
 
-        
+      
         const newProduct = await Product.create({
             title,
             description,
@@ -48,7 +41,7 @@ export const productController = async (req, res) => {
             rating,
             size,
             category,
-            images: imageUrls, 
+            images: image?.url, 
         });
 
         res.status(201).json({

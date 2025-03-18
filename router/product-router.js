@@ -4,7 +4,8 @@ import { productController } from "../controllers/product-controllers.js";
 
 const Productrouter = Router();
 
-// Fix Multer: Use `upload.fields()`
-Productrouter.route("/product").post(upload.array("images", 5), productController);
+
+Productrouter.route("/product").post(upload.fields([{ name: "images", maxCount: 1 }])
+, productController);
 
 export default Productrouter;

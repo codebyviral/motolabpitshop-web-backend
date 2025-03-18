@@ -4,6 +4,7 @@ import cors from "cors";
 import adminRouter from "./router/admin-router.js"
 import authRouter from "./router/auth-router.js"
 import orderRouter from "./router/order-router.js"
+import Productrouter from "./router/product-router.js";
 import session from "express-session"
 import passport from "passport"
 import { Strategy as OAuth2Strategy } from "passport-google-oauth2"
@@ -20,7 +21,7 @@ const corsOptions = {
     origin: process.env.CORS_ORIGIN,
     method: "GET, POST, DELETE, PATCH, HEAD, PUT",
     credentials: true,
-    allowedHeaders: "Content-Type, Authorization"
+    allowedHeaders: "Content-Type, Authorization , multipart/form-data"
 }
 
 app.use(cors(corsOptions))
@@ -52,6 +53,7 @@ app.use(passport.session())
 app.use("/api/auth", authRouter)
 app.use("/api/admin", adminRouter)
 app.use("/api/order", orderRouter)
+app.use("/api/add", Productrouter)
 
 passport.use(
     new OAuth2Strategy({
