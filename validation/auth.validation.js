@@ -1,7 +1,7 @@
 import {z} from "zod";
 
 export const UserSchema = z.object({
-    fullname : z.string()
+    fullName : z.string()
         .trim()
         .min(3, { message: "name must be at least 3 characters long" })
         .max(20, { message: "name ust be no longer than 20 word" }),

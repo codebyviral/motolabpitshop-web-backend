@@ -7,7 +7,7 @@ export const productController = async (req, res) => {
         console.log("Request Files:", req.files); // Debugging
         const { data, error } = ProductSchema.safeParse(req.body)
                 if (error) {
-                    res.json({
+                return res.json({
                         message: error.errors[0].message
                     })
                 }

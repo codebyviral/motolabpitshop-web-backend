@@ -1,13 +1,14 @@
 import { User } from "../models/user.model.js"
 import bcrypt from "bcryptjs"
 import jwt from 'jsonwebtoken'
+import { sendWelcomeEmail } from "../services/email.service.js"
 import { LoginUser, UserSchema } from "../validation/auth.validation.js";
 
 const signup = async (req, res) => {
     try {
         const { data, error } = UserSchema.safeParse(req.body)
         if (error) {
-            res.json({
+            return res.json({
                 message: error.errors[0].message
             })
         }
@@ -20,9 +21,11 @@ const signup = async (req, res) => {
         const newUser = await new User({
             fullName,
             email,
-            password: hashed_password
+            password: hashed_password,
+            isAdmin: "false"
         })
-        newUser.save();
+        await newUser.save();
+        await sendWelcomeEmail(fullName, email, "Welcome to MotoLab PitShop!");
         return res.status(200).json({ msg: "Success" })
     } catch (error) {
         console.log(`Error during signup from controller: ${error}`)
@@ -33,11 +36,13 @@ const login = async (req, res) => {
     try {
         const { data, error } = LoginUser.safeParse(req.body)
         if (error) {
-            res.json({
+            return res.json({
                 message: error.errors[0].message
             })
         }
+
         const { email, password } = data;
+        console.log(data);
         const userExists = await User.findOne({ email })
         if (!userExists) {
             // Never let anyone know what is wrong where. eg. hackers

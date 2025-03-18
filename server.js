@@ -4,21 +4,13 @@ import cors from "cors";
 import adminRouter from "./router/admin-router.js"
 import authRouter from "./router/auth-router.js"
 import orderRouter from "./router/order-router.js"
-
-import dotenv from "dotenv";
-import Productrouter from "./router/product-router.js";
-
-dotenv.config({
-    path: ".env"
-});
-
 import session from "express-session"
 import passport from "passport"
 import { Strategy as OAuth2Strategy } from "passport-google-oauth2"
 import { User } from "./models/user.model.js"
 
 const app = express();
-const port = 8000 || process.env.PORT;
+const port = process.env.PORT || 8000;
 
 const clientID = process.env.CLIENT_ID
 const clientSecret = process.env.CLIENT_SECRET
@@ -28,14 +20,30 @@ const corsOptions = {
     origin: process.env.CORS_ORIGIN,
     method: "GET, POST, DELETE, PATCH, HEAD, PUT",
     credentials: true,
-    allowedHeaders: "Content-Type, Authorization , multipart/form-data"
+    allowedHeaders: "Content-Type, Authorization"
 }
 
 app.use(cors(corsOptions))
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(express.static("public"));
 
+// setup session
+app.use(session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'none'
+    }
+}))
+app.use(express.urlencoded());
+app.use(express.static("public", { index: false }));
+
+// setup passport
+
+app.use(passport.initialize())
+app.use(passport.session())
 
 ////////////////////////////////
 //////LIST OF ALL APIS /////////
@@ -44,24 +52,6 @@ app.use(express.static("public"));
 app.use("/api/auth", authRouter)
 app.use("/api/admin", adminRouter)
 app.use("/api/order", orderRouter)
-app.use("/api/upload", Productrouter)
-
-// setup session
-app.use(session({
-    secret: "19ghvbd4n3hd78chdfg43hsu",
-    resave: false,
-    saveUninitialized: true,
-    cookie: {
-        httpOnly: true,
-        secure: true,
-        sameSite: "none",
-    }
-}))
-
-// setup passport
-
-app.use(passport.initialize())
-app.use(passport.session())
 
 passport.use(
     new OAuth2Strategy({
@@ -111,7 +101,7 @@ app.get("/auth/google/callback", passport.authenticate("google", {
 }))
 
 app.get("/login/success", async (req, res) => {
-    console.log(`Resolving successful login: ${req.user}`)
+
     if (req.user) {
         res.status(200).json({
             message: "User has logged in",
@@ -130,10 +120,12 @@ app.get("/logout", (req, res, next) => {
 })
 
 app.get("/", (req, res) => {
+    console.log(`Someone said hi to our backend server.`)
     res.send(`This is Motolabpitshop Backend server`)
 })
 
-connectToDataBase().then(() => {
+await connectToDataBase().then(() => {
+    console.log(`Connecting to mongodatabase...`)
     app.listen(port, () => {
         console.log(`Motolabpitshop Server is running on port: ${port}`)
     })
