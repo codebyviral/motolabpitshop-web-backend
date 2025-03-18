@@ -40,7 +40,7 @@ export const productController = async (req, res) => {
             return res.status(500).json({ error: "Image upload to Cloudinary failed." });
         }
 
-        // Convert price & rating to Number (since form-data sends everything as a string)
+        
         const newProduct = await Product.create({
             title,
             description,
