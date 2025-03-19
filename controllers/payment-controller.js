@@ -7,8 +7,12 @@ const checkout = async (req, res) => {
     };
 
     const order = await instance.orders.create(options);
-
+    console.log(order)
     res.status(200).json({ success: true, order, })
+}
+
+const paymentVerification = async(req,res) => {
+
 }
 
 export { checkout }

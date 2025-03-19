@@ -2,6 +2,17 @@ import { Product } from "../models/product.model.js";
 import { uploadCloudinery } from "../utils/cloudinary.utils.js";
 import { ProductSchema } from "../validation/auth.validation.js";
 
+export const getProductById = async (req, res) => {
+    try {
+        const { productId } = req.body;
+        const product = await Product.findById(productId);
+        return res.status(200).json({ success: true, product })
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({ error })
+    }
+}
+
 export const productController = async (req, res) => {
     try {
         console.log("Request Body:", req.body); // Debugging
@@ -33,7 +44,7 @@ export const productController = async (req, res) => {
             throw new ApiError(500, "Image upload failed");
         }
 
-      
+
         const newProduct = await Product.create({
             title,
             description,
@@ -41,7 +52,7 @@ export const productController = async (req, res) => {
             rating,
             size,
             category,
-            images: image?.url, 
+            images: image?.url,
         });
 
         res.status(201).json({

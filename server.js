@@ -28,7 +28,12 @@ const corsOptions = {
     origin: process.env.CORS_ORIGIN,
     method: "GET, POST, DELETE, PATCH, HEAD, PUT",
     credentials: true,
-    allowedHeaders: "Content-Type, Authorization , multipart/form-data"
+    allowedHeaders: [
+        "Content-Type",
+        "Authorization",
+        "X-Requested-With",
+        "Accept"
+    ],
 }
 
 app.use(cors(corsOptions))
@@ -60,7 +65,7 @@ app.use("/api/admin", adminRouter)
 app.use("/api/search", orderRouter)
 app.use("/api/get", orderRouter)
 app.use("/api/order", orderRouter)
-app.use("/api/add", Productrouter)
+app.use("/api/product", Productrouter)
 
 passport.use(
     new OAuth2Strategy({
@@ -143,7 +148,7 @@ app.get("/", (req, res) => {
 })
 
 await connectToDataBase().then(() => {
-    console.log(`Connecting to mongodatabase...`)
+    console.log(`Almost there...`)
     app.listen(port, () => {
         console.log(`Motolabpitshop Server is running on port: ${port}`)
     })
