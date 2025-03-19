@@ -28,12 +28,7 @@ const corsOptions = {
     origin: process.env.CORS_ORIGIN,
     method: "GET, POST, DELETE, PATCH, HEAD, PUT",
     credentials: true,
-    allowedHeaders: [
-        "Content-Type",
-        "Authorization",
-        "X-Requested-With",
-        "Accept"
-    ],
+    allowedHeaders: "*"
 }
 
 app.use(cors(corsOptions))
