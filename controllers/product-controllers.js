@@ -16,7 +16,7 @@ export const getProductById = async (req, res) => {
 export const productController = async (req, res) => {
     try {
         console.log("Request Body:", req.body); // Debugging
-        console.log("Request File:", req.file); // Debugging (Changed from req.files to req.file)
+        console.log("Request File:", req.files); // Debugging (Changed from req.files to req.file)
 
         const { data, error } = ProductSchema.safeParse(req.body);
         if (error) {
@@ -34,14 +34,21 @@ export const productController = async (req, res) => {
             return res.status(400).json({ error: "Product already exists." });
         }
 
-        const imagePath = req.files.images[0]?.path || null;
-        if (!imagePath) {
-            throw new ApiError(400, "Image field is required");
+        if (!req.files || req.files.length === 0) {
+            return res.status(400).json({ error: "At least one image file is required." });
         }
 
-        const image = await uploadCloudinery(imagePath);
-        if (!image) {
-            throw new ApiError(500, "Image upload failed");
+        // Upload images sequentially
+        let imageUrls = [];
+        for (const file of req.files) {
+            const uploadedImage = await uploadCloudinery(file.path);
+            if (uploadedImage.url) {
+                imageUrls.push(uploadedImage.url);
+            }
+        }
+
+        if (imageUrls.length === 0) {
+            return res.status(500).json({ error: "Image upload to Cloudinary failed." });
         }
 
 
@@ -52,7 +59,7 @@ export const productController = async (req, res) => {
             rating,
             size,
             category,
-            images: image?.url,
+            images: imageUrls,
         });
 
         res.status(201).json({

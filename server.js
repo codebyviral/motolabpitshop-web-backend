@@ -2,6 +2,7 @@
 import express from "express";
 import { connectToDataBase } from "./config/db.js"
 import cors from "cors";
+import cookieParser from "cookie-parser";
 // ========================== Router Imports =========================== //
 import adminRouter from "./router/admin-router.js"
 import authRouter from "./router/auth-router.js"
@@ -47,6 +48,7 @@ app.use(express.json());
 // }))
 app.use(express.urlencoded());
 app.use(express.static("public", { index: false }));
+app.use(cookieParser());
 
 // setup passport
 
