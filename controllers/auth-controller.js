@@ -49,11 +49,15 @@ const login = async (req, res) => {
             return res.status(400).json({ msg: 'Invalid Credentials' })
         }
         const user = await userExists.comparePassword(password)
-
+        const token = await userExists.generateAuthToken();
+        const option ={
+            httpOnly: true,
+            secure: false,  // Set to true if using HTTPS
+        }
         if (user) {
-            res.status(200).json({
+            res.status(200).cookie("authToken",token , option).json({
                 message: 'Login successful',
-                token: await userExists.generateAuthToken(),
+                token,
                 userId: await userExists._id.toString(),
                 isAdmin: await userExists.isAdmin,
                 imageUrl: await userExists.avatar,

@@ -5,7 +5,7 @@ import { productController, getProductById } from "../controllers/product-contro
 const Productrouter = Router();
 
 
-Productrouter.route("/add").post(upload.fields([{ name: "images", maxCount: 1 }])
+Productrouter.route("/add").post(upload.array("images", 5)
     , productController);
 
 Productrouter.post("/get-by-id", getProductById)

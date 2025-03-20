@@ -2,6 +2,7 @@
 import express from "express";
 import { connectToDataBase } from "./config/db.js"
 import cors from "cors";
+import cookieParser from "cookie-parser";
 // ========================== Router Imports =========================== //
 import adminRouter from "./router/admin-router.js"
 import authRouter from "./router/auth-router.js"
@@ -30,7 +31,7 @@ const corsOptions = {
     methods: ["GET", "POST", "DELETE", "PATCH", "HEAD", "PUT"],
     allowedHeaders: ["Content-Type", "Authorization", "Access-Control-Allow-Credentials"]
 };
-
+app.usr(cookieParser());
 app.use(cors(corsOptions));
 app.use(express.json());
 
