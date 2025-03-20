@@ -26,7 +26,7 @@ const clientSecret = process.env.CLIENT_SECRET
 const devFrontendUrl = process.env.DEV_FRONTEND_URL;
 
 const corsOptions = {
-    origin: "http://localhost:5173",
+    origin: "https://motolabpitshop.vercel.app",
     credentials: true,
     methods: ["GET", "POST", "DELETE", "PATCH", "HEAD", "PUT"],
     allowedHeaders: ["Content-Type", "Authorization", "Access-Control-Allow-Credentials"]
