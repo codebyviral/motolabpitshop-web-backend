@@ -26,7 +26,7 @@ const clientSecret = process.env.CLIENT_SECRET
 const devFrontendUrl = process.env.DEV_FRONTEND_URL;
 
 const corsOptions = {
-    origin: "*",
+    origin: "http://localhost:5173",
     credentials: true,
     methods: ["GET", "POST", "DELETE", "PATCH", "HEAD", "PUT"],
     allowedHeaders: ["Content-Type", "Authorization", "Access-Control-Allow-Credentials"]
@@ -138,6 +138,10 @@ export const instance = new Razorpay({
 })
 
 app.use("/api", paymentRouter)
+
+app.use("/api/get-key", (req, res) => {
+    res.status(200).json({ key: process.env.RAZORPAY_KEY_ID })
+})
 
 app.get("/", (req, res) => {
     console.log(`Someone said hi to our backend server.`)
