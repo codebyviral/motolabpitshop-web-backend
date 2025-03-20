@@ -31,7 +31,7 @@ const corsOptions = {
     methods: ["GET", "POST", "DELETE", "PATCH", "HEAD", "PUT"],
     allowedHeaders: ["Content-Type", "Authorization", "Access-Control-Allow-Credentials"]
 };
-app.usr(cookieParser());
+app.use(cookieParser());
 app.use(cors(corsOptions));
 app.use(express.json());
 

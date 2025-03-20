@@ -71,6 +71,19 @@ const login = async (req, res) => {
     }
 }
 
-const authControllers = { signup, login }
+const getUser = (req,res)=>{
+    try {
+        const user = User.findById(req.user._id).select("fullName email");
+        if(!user){
+            return res.status(400).json({ msg: "user can't found" })
+        }
+        return res.status(200).json("user found" , user);
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({msg : "internal server error" , error})
+    }
+}
+
+const authControllers = { signup, login , getUser }
 
 export { authControllers }
