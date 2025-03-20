@@ -16,7 +16,7 @@ export const getProductById = async (req, res) => {
 export const productController = async (req, res) => {
     try {
         console.log("Request Body:", req.body); // Debugging
-        console.log("Request File:", req.file); // Debugging (Changed from req.files to req.file)
+        console.log("Request File:", req.files); // Debugging (Changed from req.files to req.file)
 
         const { data, error } = ProductSchema.safeParse(req.body);
         if (error) {
@@ -42,7 +42,7 @@ export const productController = async (req, res) => {
         let imageUrls = [];
         for (const file of req.files) {
             const uploadedImage = await uploadCloudinery(file.path);
-            if (uploadedImage?.url) {
+            if (uploadedImage.url) {
                 imageUrls.push(uploadedImage.url);
             }
         }

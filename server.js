@@ -26,12 +26,12 @@ const clientSecret = process.env.CLIENT_SECRET
 const devFrontendUrl = process.env.DEV_FRONTEND_URL;
 
 const corsOptions = {
-    origin: "https://motolabpitshop.vercel.app",
+    origin: "*",
     credentials: true,
     methods: ["GET", "POST", "DELETE", "PATCH", "HEAD", "PUT"],
     allowedHeaders: ["Content-Type", "Authorization", "Access-Control-Allow-Credentials"]
 };
-app.use(cookieParser());
+
 app.use(cors(corsOptions));
 app.use(express.json());
 
@@ -48,6 +48,7 @@ app.use(express.json());
 // }))
 app.use(express.urlencoded());
 app.use(express.static("public", { index: false }));
+app.use(cookieParser());
 
 // setup passport
 

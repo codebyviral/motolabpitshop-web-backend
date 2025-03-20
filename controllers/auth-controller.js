@@ -50,12 +50,14 @@ const login = async (req, res) => {
         }
         const user = await userExists.comparePassword(password)
         const token = await userExists.generateAuthToken();
+        console.log(token)
         const option ={
             httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
             secure: false,  // Set to true if using HTTPS
         }
         if (user) {
-            res.status(200).cookie("authToken",token , option).json({
+            res.status(200).cookie("authToken",token, option).json({
                 message: 'Login successful',
                 token,
                 userId: await userExists._id.toString(),
@@ -71,18 +73,22 @@ const login = async (req, res) => {
     }
 }
 
-const getUser = (req,res)=>{
+const getUser = async (req, res) => {
     try {
-        const user = User.findById(req.user._id).select("fullName email");
-        if(!user){
-            return res.status(400).json({ msg: "user can't found" })
+        const user = await User.findById(req.user._id).select("fullName email");
+        console.log(user);
+        if (!user) {
+            return res.status(400).json({ msg: "User not found" });
         }
-        return res.status(200).json("user found" , user);
+
+        return res.status(200).json({ message: "User found", user });
+
     } catch (error) {
-        console.log(error);
-        return res.status(500).json({msg : "internal server error" , error})
+        console.error("Error in getUser:", error);
+        return res.status(500).json({ msg: "Internal server error", error });
     }
-}
+};
+
 
 const authControllers = { signup, login , getUser }
 
