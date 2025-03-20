@@ -25,13 +25,13 @@ const clientSecret = process.env.CLIENT_SECRET
 const devFrontendUrl = process.env.DEV_FRONTEND_URL;
 
 const corsOptions = {
-    origin: process.env.CORS_ORIGIN,
-    method: "GET, POST, DELETE, PATCH, HEAD, PUT",
+    origin: "https://motolabpitshop.vercel.app",
     credentials: true,
-    allowedHeaders: "*"
-}
+    methods: ["GET", "POST", "DELETE", "PATCH", "HEAD", "PUT"],
+    allowedHeaders: ["Content-Type", "Authorization", "Access-Control-Allow-Credentials"]
+};
 
-app.use(cors(corsOptions))
+app.use(cors(corsOptions));
 app.use(express.json());
 
 // setup session
