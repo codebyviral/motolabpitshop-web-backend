@@ -20,7 +20,7 @@ export const UserSchema = z.object({
 
 export const LoginUser = z.object({
     email: z.string()
-       .email(),
+        .email({ message: "Invalid email format" }),
        
     password: z.string()
         .min(6, { message: "password must be at least 6 characters long" })
@@ -34,4 +34,14 @@ export const ProductSchema = z.object({
     rating: z.preprocess((val) => Number(val), z.number()), // Convert to number
     category: z.string().trim(),
     size: z.string().trim(),
+})
+
+export const updateSchema = z.object({
+    fullName: z
+        .string()
+        .trim()
+        .min(2, { message: "Name should be at least 2 characters long" })
+        .max(50, { message: "Name should be less than 50 characters" }),
+
+    email: z.string().trim().email({ message: "Invalid email format" }),
 })

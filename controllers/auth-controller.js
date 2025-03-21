@@ -2,7 +2,7 @@ import { User } from "../models/user.model.js"
 import bcrypt from "bcryptjs"
 import jwt from 'jsonwebtoken'
 import { sendWelcomeEmail } from "../services/email.service.js"
-import { LoginUser, UserSchema } from "../validation/auth.validation.js";
+import { LoginUser, updateSchema, UserSchema } from "../validation/auth.validation.js";
 
 const signup = async (req, res) => {
     try {
@@ -89,7 +89,24 @@ const getUser = async (req, res) => {
     }
 };
 
+export const UpdateUser = async(req,res)=>{
+    const {data,error} = updateSchema.safeParse(req.body);
+    if(error){
+        return res.status(400).json({msg : error.errors[0].message})
+    }
+    const {fullName , email} = data;
+    if(!fullName || !email){
+        return res.status(400).json({msg : "Please provide full name and email"})
+    }
+    const user = await User.findByIdAndUpdate(req.user._id,{
+        $set:{fullName , email}
+    },
+{
+    new : true,
+})
+    res.status(200).json({messege : "user detail updated successfully" , user} )
+}
 
-const authControllers = { signup, login , getUser }
+const authControllers = { signup, login, getUser, UpdateUser }
 
 export { authControllers }
