@@ -4,7 +4,7 @@ import { Order } from "../models/order.model.js";
 
 const createOrder = async (req, res) => {
     try {
-        const { phoneNumber, shippingaddress } = req.body;
+        const { phoneNumber, shippingaddress , items } = req.body;
 
         // Check if user exists
         const user = await User.findById(req.user._id);
