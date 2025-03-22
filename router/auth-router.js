@@ -5,6 +5,8 @@ import verifyJWT from "../middlewares/auth.middlewares.js";
 const router = express.Router();
 
 router.post("/signup", authControllers.signup)
+router.get("/get-otp",authControllers.sendEmailOtp)
+router.post("/verify-account",authControllers.verifyAccount)
 router.post("/login",authControllers.login)
 router.get("/user",verifyJWT, authControllers.getUser)
 router.put("/updateuser", verifyJWT, authControllers.UpdateUser)

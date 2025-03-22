@@ -9,6 +9,7 @@ import authRouter from "./router/auth-router.js"
 import orderRouter from "./router/order-router.js"
 import paymentRouter from "./router/payment-router.js"
 import Productrouter from "./router/product-router.js"
+import userRouter from "./router/user-router.js"
 // ========================== Sessions & Middleware =========================== //
 import session from "express-session"
 import passport from "passport"
@@ -27,7 +28,7 @@ const devFrontendUrl = process.env.DEV_FRONTEND_URL;
 
 const corsOptions = {
     // origin: "https://motolabpitshop.vercel.app",
-    origin: "http://localhost:5173",
+    origin: "https://motolabpitshop.vercel.app",
     credentials: true,
     methods: ["GET", "POST", "DELETE", "PATCH", "HEAD", "PUT"],
     allowedHeaders: ["Content-Type", "Authorization", "Access-Control-Allow-Credentials"]
@@ -64,6 +65,7 @@ app.use("/api/search", orderRouter)
 app.use("/api/get", orderRouter)
 app.use("/api/order", orderRouter)
 app.use("/api/product", Productrouter)
+app.use("/api/get-user",userRouter)
 
 // passport.use(
 //     new OAuth2Strategy({
