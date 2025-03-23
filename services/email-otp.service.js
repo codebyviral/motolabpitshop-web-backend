@@ -10,12 +10,12 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-const welcomeTemplate = (name, email) => `<!DOCTYPE html>
+const otpEmailTemplate = (name, email, otp) => `<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome to MotoLab PitShop!</title>
+    <title>Your Verification Code - MotoLab PitShop</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -41,19 +41,33 @@ const welcomeTemplate = (name, email) => `<!DOCTYPE html>
             font-weight: bold;
             color: #000;
         }
-        .benefits {
-            display: flex;
-            justify-content: space-between;
-            margin: 20px 0;
+        .otp-container {
+            margin: 25px 0;
             text-align: center;
         }
-        .benefit {
-            flex: 1;
-            padding: 10px;
+        .otp-code {
+            font-size: 32px;
+            letter-spacing: 8px;
+            font-weight: bold;
+            background-color: #f0f0f0;
+            padding: 15px;
+            border-radius: 8px;
+            display: inline-block;
+            border: 1px dashed #ccc;
         }
-        .benefit-icon {
-            font-size: 24px;
-            margin-bottom: 10px;
+        .security-note {
+            background-color: #fffde7;
+            padding: 10px;
+            border-radius: 5px;
+            border-left: 4px solid #ffd54f;
+            margin: 20px 0;
+            font-size: 14px;
+        }
+        .expiry-note {
+            text-align: center;
+            margin: 15px 0;
+            font-size: 14px;
+            color: #e53935;
         }
         .button {
             display: inline-block;
@@ -78,29 +92,26 @@ const welcomeTemplate = (name, email) => `<!DOCTYPE html>
         <div class="logo">MotoLab PitShop</div>
     </div>
     <div class="content">
-        <h1>Welcome, ${name}!</h1>
-        <p>Thanks for joining MotoLab PitShop, your one-stop destination for premium motorcycle parts, accessories, and apparel.</p>
-        <p>We've created an account for you with the email: <strong>${email}</strong></p>
-        <div class="benefits">
-            <div class="benefit">
-                <div class="benefit-icon">🚚</div>
-                <div>Free Shipping</div>
-                <div>On orders over $100</div>
-            </div>
-            <div class="benefit">
-                <div class="benefit-icon">↩️</div>
-                <div>Easy Returns</div>
-                <div>Within 30 days</div>
-            </div>
-            <div class="benefit">
-                <div class="benefit-icon">🔒</div>
-                <div>Secure Payment</div>
-                <div>100% Secure Online</div>
-            </div>
+        <h1>Verification Code</h1>
+        <p>Hello ${name},</p>
+        <p>Please use the following verification code to complete your account verification process:</p>
+        
+        <div class="otp-container">
+            <div class="otp-code">${otp}</div>
         </div>
-        <p>Get ready to experience high-quality gear designed for riders who demand the best.</p>
+        
+        <div class="expiry-note">
+            This code will expire in 30 minutes.
+        </div>
+        
+        <div class="security-note">
+            <strong>Security Notice:</strong> If you didn't request this code, please ignore this email or contact support immediately. Never share this code with anyone.
+        </div>
+        
+        <p>Once verified, you'll have full access to your MotoLab PitShop account and can start shopping for premium motorcycle parts, accessories, and apparel.</p>
+        
         <center>
-            <a href="https://motolabpitshop.com/shop" class="button">SHOP NOW</a>
+            <a href="https://motolabpitshop.com/verify" class="button">VERIFY YOUR ACCOUNT</a>
         </center>
     </div>
     <div class="footer">
@@ -110,9 +121,10 @@ const welcomeTemplate = (name, email) => `<!DOCTYPE html>
 </body>
 </html>`;
 
-export const sendWelcomeEmail = async (name, to, subject) => {
+export const sendOtpEmail = async (name, to, otp) => {
   try {
-    const htmlContent = welcomeTemplate(name, to);
+    const subject = "Your Verification Code - MotoLab PitShop";
+    const htmlContent = otpEmailTemplate(name, to, otp);
 
     await transporter.sendMail({
       from: `MotoLab PitShop <${process.env.NODEMAILER_USER_EMAIL}>`,
@@ -120,9 +132,9 @@ export const sendWelcomeEmail = async (name, to, subject) => {
       subject,
       html: htmlContent,
     });
-    console.log("Email sent successfully to:", to);
+    console.log("OTP email sent successfully to:", to);
   } catch (error) {
-    console.error("Error sending email:", error);
+    console.error("Error sending OTP email:", error);
     throw error;
   }
 };
