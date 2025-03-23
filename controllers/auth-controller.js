@@ -89,6 +89,7 @@ const getUser = async (req, res) => {
     }
 };
 
+
 export const UpdateUser = async(req,res)=>{
     const {data,error} = updateSchema.safeParse(req.body);
     if(error){
@@ -107,6 +108,36 @@ export const UpdateUser = async(req,res)=>{
     res.status(200).json({messege : "user detail updated successfully" , user} )
 }
 
-const authControllers = { signup, login, getUser, UpdateUser }
+const getAllUser = async (req, res) => {
+    try {
+        const users = await User.find().select("fullName email");
+        if (!users.length) {
+            return res.status(404).json({ message: "No users found" });
+        }
+        res.status(200).json({ message: "Users found", users });
+    } catch (error) {
+        console.error("Error in getAllUser:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+};
+
+
+const deleteUser = async(req,res) =>{
+    try{
+        const {id} = req.params;
+        console.log("User ID to delete:", id);
+
+        const user  = await User.findByIdAndDelete(id);
+        if(!user){
+            return res.status(404).json({messege : "User not found"})
+        }
+        res.status(200).json({messege : "User deleted successfully" , user});dddd
+    }
+    catch(error){
+        console.log(error)
+    }
+}
+
+const authControllers = { signup, login, getUser, UpdateUser ,getAllUser , deleteUser }
 
 export { authControllers }
