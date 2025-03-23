@@ -68,6 +68,7 @@ const login = async (req, res) => {
           userId: await userExists._id.toString(),
           isAdmin: await userExists.isAdmin,
           imageUrl: await userExists.avatar,
+          isVerified: await userExists.isVerified,
         });
     } else {
       res.status(401).json({ message: "Invalid email or password." });
@@ -80,7 +81,9 @@ const login = async (req, res) => {
 
 const getUser = async (req, res) => {
   try {
-    const user = await User.findById(req.user._id).select("fullName email isVerified cart address");
+    const user = await User.findById(req.user._id).select(
+      "fullName email isVerified cart address"
+    );
     console.log(user);
     if (!user) {
       return res.status(400).json({ msg: "User not found" });
@@ -133,7 +136,6 @@ const sendEmailOtp = async (req, res) => {
       otpExpiry,
     });
     // send OTP using nodemailer
-    console.log("userFound", userFound.fullName);
     await sendOtpEmail(userFound.fullName, userFound.email, otp);
     return res.status(200).json({
       msg: "OTP Request Approved",

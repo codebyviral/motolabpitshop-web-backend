@@ -1,8 +1,6 @@
 import { instance } from "../server.js";
 import crypto from "crypto";
 import { Payment } from "../models/payment.model.js";
-import { orderControllers } from "../controllers/order-controller.js";
-import axios from "axios";
 
 const checkout = async (req, res) => {
   const options = {
@@ -19,29 +17,31 @@ const paymentVerification = async (req, res) => {
   const { razorpay_order_id, razorpay_payment_id, razorpay_signature } =
     req.body;
   const body = razorpay_order_id + "|" + razorpay_payment_id;
+  try {
+    const expectedSignature = crypto
+      .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+      .update(body.toString())
+      .digest("hex");
 
-  const expectedSignature = crypto
-    .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
-    .update(body.toString())
-    .digest("hex");
+    const isAuthentic = expectedSignature === razorpay_signature;
 
-  const isAuthentic = expectedSignature === razorpay_signature;
-
-  if (isAuthentic) {
-    
-    await Payment.create({
-      razorpay_order_id,
-      razorpay_payment_id,
-      razorpay_signature,
-    });
-
-    res.redirect(
-      `${process.env.DEV_FRONTEND_URL}/payment-success?reference=${razorpay_payment_id}`
-    );
-  } else {
-    res.status(400).json({
-      success: false,
-    });
+    if (isAuthentic) {
+      // Database comes here
+      await Payment.create({
+        razorpay_order_id,
+        razorpay_payment_id,
+        razorpay_signature,
+      });
+      res.redirect(
+        `${process.env.DEV_FRONTEND_URL}/payment-success?reference=${razorpay_payment_id}`
+      );
+    } else {
+      res.status(400).json({
+        success: false,
+      });
+    }
+  } catch (error) {
+    return res.status(500).json({ success: false, error });
   }
 };
 

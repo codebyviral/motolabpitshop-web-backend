@@ -1,4 +1,4 @@
-import { mongoose } from "mongoose";
+import { mongo, mongoose } from "mongoose";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 
@@ -28,6 +28,15 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    orders: [
+      {
+        orderId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Order",
+          required: false,
+        },
+      },
+    ],
     cart: [
       {
         productId: {
@@ -58,6 +67,10 @@ const userSchema = new mongoose.Schema(
     },
     otpExpiry: {
       type: Date,
+    },
+    isGuest: {
+      type: Boolean,
+      default: false,
     },
   },
   { timeStamps: true }
