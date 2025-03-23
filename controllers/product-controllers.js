@@ -83,3 +83,50 @@ export const getAllProducts = async (req, res) => {
         return res.status(500).json({ error })
     }
 }
+
+
+export const updateProduct = async (req, res) => {
+    const { data, error } = ProductSchema.safeParse(req.body);
+    if (error) {
+        return res.status(400).json({ message: error.errors[0].message });
+    }
+
+    const { title, description, price, rating, size, category } = data;
+
+    if (!title || !description || !price || !rating || !size || !category) {
+        return res.status(400).json({ error: "Please provide all required fields." });
+    }
+    try {
+        let imageUrls = product.images; // Keep existing images by default
+        if (req.files && req.files.length > 0) {
+            imageUrls = [];
+            for (const file of req.files) {
+                const uploadedImage = await uploadCloudinery(file.path);
+                if (uploadedImage.url) {
+                    imageUrls.push(uploadedImage.url);
+                }
+            }
+        }
+
+        const product = Product.findByIdAndUpdate(req.product._id, {
+            $set: {
+                title,
+                description,
+                price,
+                rating,
+                size,
+                category,
+                images: imageUrls,
+            }
+        },
+            {
+                new: true
+            }
+        )
+        if (!updateProduct) {
+            return res.status(404).json({ message: "Product not found" })
+        }
+    } catch (error) {
+        console.log({ message: "error in product update controller" }, error)
+    }
+}
