@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { sendWelcomeEmail } from "../services/email.service.js";
 import { sendOtpEmail } from "../services/email-otp.service.js";
-import { LoginUser, UserSchema } from "../validation/auth.validation.js";
+import { LoginUser, UserSchema , updateSchema} from "../validation/auth.validation.js";
 
 const signup = async (req, res) => {
   try {
@@ -97,24 +97,62 @@ const getUser = async (req, res) => {
 };
 
 export const UpdateUser = async (req, res) => {
-  const { data, error } = updateSchema.safeParse(req.body);
-  if (error) {
-    return res.status(400).json({ msg: error.errors[0].message });
-  }
-  const { fullName, email } = data;
-  if (!fullName || !email) {
-    return res.status(400).json({ msg: "Please provide full name and email" });
-  }
-  const user = await User.findByIdAndUpdate(
-    req.user._id,
-    {
-      $set: { fullName, email },
-    },
-    {
-      new: true,
+  try {
+    const { fullName, email, address, phone } = req.body;
+    
+    // Create update object with only the fields that are provided
+    const updateFields = {};
+    if (fullName) updateFields.fullName = fullName;
+    if (email) updateFields.email = email;
+    
+    // Handle address field properly based on schema
+    if (address) {
+      // If address is already in the correct format (array of objects), use it directly
+      if (Array.isArray(address) && address.length > 0 && typeof address[0] === 'object') {
+        updateFields.address = address;
+      }
+      // If address is a string, convert it to the expected array format with string as addressLine1
+      else if (typeof address === 'string') {
+        updateFields.address = [{
+          addressLine1: address,
+          addressLine2: '',
+          city: '',
+          state: '',
+          pinCode: ''
+        }];
+      }
+      // If address is a single object (not in an array), wrap it in an array
+      else if (typeof address === 'object' && !Array.isArray(address)) {
+        updateFields.address = [address];
+      }
     }
-  );
-  res.status(200).json({ messege: "user detail updated successfully", user });
+    
+    if (phone) updateFields.phone = phone;
+
+    // If no fields to update, return error
+    if (Object.keys(updateFields).length === 0) {
+      return res.status(400).json({ msg: "No fields to update" });
+    }
+
+    const user = await User.findByIdAndUpdate(
+      req.user._id,
+      { $set: updateFields },
+      { new: true }
+    );
+
+    res.status(200).json({ 
+      message: "User details updated successfully", 
+      user: {
+        fullName: user.fullName,
+        email: user.email,
+        address: user.address,
+        phone: user.phone
+      }
+    });
+  } catch (error) {
+    console.error("Error updating user:", error);
+    res.status(500).json({ msg: "Server error" });
+  }
 };
 
 const sendEmailOtp = async (req, res) => {
