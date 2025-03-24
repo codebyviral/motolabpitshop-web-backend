@@ -235,7 +235,8 @@ const authControllers = {
   signup,
   login,
   getUser,
-  deleteUser
+  getAllUser,
+  deleteUser,
   UpdateUser,
   sendEmailOtp,
   verifyAccount,
