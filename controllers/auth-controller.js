@@ -5,6 +5,7 @@ import { sendWelcomeEmail } from "../services/email.service.js";
 import { sendOtpEmail } from "../services/email-otp.service.js";
 import { LoginUser, UserSchema } from "../validation/auth.validation.js";
 
+
 const signup = async (req, res) => {
   try {
     const { data, error } = UserSchema.safeParse(req.body);

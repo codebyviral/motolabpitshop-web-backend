@@ -31,9 +31,7 @@ export const ProductSchema = z.object({
     title: z.string().trim(),
     description: z.string().trim(),
     price: z.preprocess((val) => Number(val), z.number()),  // Convert to number
-    rating: z.preprocess((val) => Number(val), z.number()), // Convert to number
     category: z.string().trim(),
-    size: z.string().trim(),
 })
 
 export const updateSchema = z.object({
