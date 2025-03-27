@@ -143,7 +143,7 @@ export const deleteCartItem = async (req, res) => {
       user,
       {
         $pull: {
-          cart: { _id: product },
+          cart: { productId: product },
         },
       },
       { new: true }
