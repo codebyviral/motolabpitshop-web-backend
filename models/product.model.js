@@ -20,12 +20,11 @@ const productSchema = new mongoose.Schema({
     rating:{
         type: Number,
         default: 0,
-        min : 1 ,
-        max : 5
+        max : 5,
+        required : false
     },
     size:{
-        type: String,
-        required: true
+        type: String
     },
     category:{
         type: String,

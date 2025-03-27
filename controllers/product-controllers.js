@@ -23,9 +23,9 @@ export const productController = async (req, res) => {
             return res.status(400).json({ message: error.errors[0].message });
         }
 
-        const { title, description, price, rating, size, category } = data;
+        const { title, description, price, category } = data;
 
-        if (!title || !description || !price || !rating || !size || !category) {
+        if (!title || !description || !price || !category) {
             return res.status(400).json({ error: "Please provide all required fields." });
         }
 
@@ -56,8 +56,7 @@ export const productController = async (req, res) => {
             title,
             description,
             price,
-            rating,
-            size,
+
             category,
             images: imageUrls,
         });
