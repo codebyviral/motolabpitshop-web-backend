@@ -94,7 +94,7 @@ const getUser = async (req, res) => {
   }
 };
 
-export const UpdateUser = async (req, res) => {
+ const UpdateUser = async (req, res) => {
   const { data, error } = updateSchema.safeParse(req.body);
   if (error) {
     return res.status(400).json({ msg: error.errors[0].message });
@@ -234,10 +234,11 @@ const authControllers = {
   signup,
   login,
   getUser,
-  deleteUser
+  deleteUser,
   UpdateUser,
   sendEmailOtp,
   verifyAccount,
+  getAllUser
 };
 
 export { authControllers };

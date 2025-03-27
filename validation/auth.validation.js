@@ -15,7 +15,6 @@ export const UserSchema = z.object({
     email: z.string()
         .email(),
 
-    isAdmin : z.boolean()
 })
 
 export const LoginUser = z.object({
