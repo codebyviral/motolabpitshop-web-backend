@@ -26,12 +26,15 @@ export const LoginUser = z.object({
         .max(20, { message: "password must be at least 20 characters long" }),
 })
 
+
 export const ProductSchema = z.object({
-    title: z.string().trim(),
-    description: z.string().trim(),
-    price: z.preprocess((val) => Number(val), z.number()),  // Convert to number
-    category: z.string().trim(),
-})
+    title: z.string().optional(),
+    description: z.string().optional(),
+    price: z.number().optional(),
+    size: z.string().optional(),
+    category: z.string().optional(),
+    quantity: z.number().optional(),
+});
 
 export const updateSchema = z.object({
     fullName: z

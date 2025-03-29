@@ -23,9 +23,9 @@ export const productController = async (req, res) => {
             return res.status(400).json({ message: error.errors[0].message });
         }
 
-        const { title, description, price, category } = data;
+        const { title, description, price, category,quantity,size } = data;
 
-        if (!title || !description || !price || !category) {
+        if (!title || !description || !price || !category || !quantity) {
             return res.status(400).json({ error: "Please provide all required fields." });
         }
 
@@ -56,8 +56,9 @@ export const productController = async (req, res) => {
             title,
             description,
             price,
-
+            quantity,
             category,
+            size,
             images: imageUrls,
         });
 
@@ -83,21 +84,35 @@ export const getAllProducts = async (req, res) => {
     }
 }
 
-
 export const updateProduct = async (req, res) => {
+    const { id } = req.params;
+    console.log("Updating product with ID:", id);
+    console.log(req.body)
+    console.log(req.files)
+   
     const { data, error } = ProductSchema.safeParse(req.body);
     if (error) {
         return res.status(400).json({ message: error.errors[0].message });
     }
 
-    const { title, description, price, rating, size, category } = data;
-
-    if (!title || !description || !price || !rating || !size || !category) {
-        return res.status(400).json({ error: "Please provide all required fields." });
-    }
     try {
-        let imageUrls = product.images; // Keep existing images by default
+        // Find the existing product
+        const product = await Product.findById(id);
+        if (!product) {
+            return res.status(404).json({ message: "Product not found" });
+        }
+
+        let imageUrls = product.images;  // Keep existing images
+
+        // Handle new image uploads
         if (req.files && req.files.length > 0) {
+            // **Step 1: Delete old images from Cloudinary**
+            for (const imgUrl of product.images) {
+                const publicId = imgUrl.split("/").pop().split(".")[0];  
+                await cloudinary.uploader.destroy(publicId);
+            }
+
+            // **Step 2: Upload new images to Cloudinary**
             imageUrls = [];
             for (const file of req.files) {
                 const uploadedImage = await uploadCloudinery(file.path);
@@ -107,25 +122,38 @@ export const updateProduct = async (req, res) => {
             }
         }
 
-        const product = Product.findByIdAndUpdate(req.product._id, {
-            $set: {
-                title,
-                description,
-                price,
-                rating,
-                size,
-                category,
-                images: imageUrls,
-            }
-        },
-            {
-                new: true
-            }
-        )
-        if (!updateProduct) {
-            return res.status(404).json({ message: "Product not found" })
-        }
+        // Create an update object with only provided fields
+        const updateFields = {};
+        console.log(data.title)
+        if (data.title) updateFields.title = data.title;
+        if (data.description) updateFields.description = data.description;
+        if (data.price) updateFields.price = data.price;
+        if (data.size) updateFields.size = data.size;
+        if (data.category) updateFields.category = data.category;
+        if (data.quantity) updateFields.quantity = data.quantity;
+        if (req.files && req.files.length > 0) updateFields.images = imageUrls; 
+
+        // Update the product in the database
+        const updatedProduct = await Product.findByIdAndUpdate(
+            id,
+            { $set: updateFields },
+            { new: true }
+        );
+
+        return res.status(200).json({ message: "Product updated successfully", product: updatedProduct });
     } catch (error) {
-        console.log({ message: "error in product update controller" }, error)
+        console.error("Error in product update controller:", error);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+};
+
+export const deleteProduct = async (req, res) => {
+    const {id} = req.params;
+    console.log(id);
+    try {
+        const product = await Product.findByIdAndDelete(id);
+        res.status(200).json({messege : "product deleted" , product});
+    } catch (error) {
+        console.log(error);
     }
 }
