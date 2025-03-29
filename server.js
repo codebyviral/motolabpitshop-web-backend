@@ -27,16 +27,16 @@ const clientSecret = process.env.CLIENT_SECRET;
 const devFrontendUrl = process.env.DEV_FRONTEND_URL;
 
 const corsOptions = {
-  origin: "https://motolabpitshop.vercel.app",
-  // origin: ["http://localhost:5173","http://localhost:5174"],
+  origin: ["http://localhost:5173", "http://localhost:5174"],
   credentials: true,
-  methods: ["GET", "POST", "DELETE", "PATCH", "HEAD", "PUT"],
+  methods: "GET, POST, DELETE, PATCH, HEAD, PUT, OPTIONS", // Ensure OPTIONS is included
   allowedHeaders: [
     "Content-Type",
     "Authorization",
     "Access-Control-Allow-Credentials",
     "multipart/form-data"
   ],
+  exposedHeaders: ["Authorization"], // Allows frontend to access Authorization header
 };
 
 app.use(express.json());
