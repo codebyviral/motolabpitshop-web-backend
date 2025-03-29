@@ -27,7 +27,10 @@ export const getUserById = async (req, res) => {
 export const getUserCart = async (req, res) => {
   const { userId } = req.body;
   try {
-    if (!userId) return res.status(400).json({ success: false, message: "User ID required" });
+    if (!userId)
+      return res
+        .status(400)
+        .json({ success: false, message: "User ID required" });
 
     // Fetch user and select cart field
     const user = await User.findById(userId).select("cart");
@@ -68,7 +71,6 @@ export const getUserCart = async (req, res) => {
     });
   }
 };
-
 
 export const addToCart = async (req, res) => {
   const { userId, productId, quantity } = req.body;
@@ -165,6 +167,35 @@ export const deleteCartItem = async (req, res) => {
     return res.status(500).json({
       success: "false",
       message: "Error deleting item from user's cart",
+    });
+  }
+};
+
+export const getAddress = async (req, res) => {
+  const { userId } = req.body;
+  if (!userId) {
+    return res.status(404).json({
+      success: false,
+      error: "User ID not retireved",
+      message: "USER ID is Required",
+    });
+  }
+  try {
+    const userAddress = await User.findById(userId).select("address");
+    if (!userAddress)
+      return res.status(404).json({
+        success: false,
+        message: "User has not added address yet!",
+      });
+    return res.status(200).json({
+      success: true,
+      address: userAddress,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      error: error,
+      message: "Error getting user's address",
     });
   }
 };
