@@ -82,9 +82,7 @@ const login = async (req, res) => {
 
 const getUser = async (req, res) => {
   try {
-    const user = await User.findById(req.user._id).select(
-      "fullName email isVerified cart address"
-    );
+    const user = await User.findById(req.user._id)
     console.log(user);
     if (!user) {
       return res.status(400).json({ msg: "User not found" });
@@ -100,6 +98,8 @@ const getUser = async (req, res) => {
 export const UpdateUser = async (req, res) => {
   try {
     const { fullName, email, address, phone } = req.body;
+
+    console.log(phone)
     
     // Create update object with only the fields that are provided
     const updateFields = {};
@@ -128,7 +128,7 @@ export const UpdateUser = async (req, res) => {
       }
     }
     
-    if (phone) updateFields.phone = phone;
+    if (phone) updateFields.phoneNumber = phone;
 
     // If no fields to update, return error
     if (Object.keys(updateFields).length === 0) {
