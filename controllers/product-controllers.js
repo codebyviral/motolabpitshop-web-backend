@@ -1,3 +1,4 @@
+import cloudinary from "cloudinary"
 import { Product } from "../models/product.model.js";
 import { uploadCloudinery } from "../utils/cloudinary.utils.js";
 import { ProductSchema } from "../validation/auth.validation.js";
