@@ -28,17 +28,16 @@ const devFrontendUrl = process.env.DEV_FRONTEND_URL;
 
 const corsOptions = {
   origin: "https://motolabpitshop.vercel.app",
-  // origin: ["http://localhost:5173","http://localhost:5174"],
+  // origin: ["http://localhost:5173", "http://localhost:5174"],
   credentials: true,
-  methods: ["GET", "POST", "DELETE", "PATCH", "HEAD", "PUT"],
+  methods: "GET, POST, DELETE, PATCH, HEAD, PUT, OPTIONS",
   allowedHeaders: [
     "Content-Type",
     "Authorization",
     "Access-Control-Allow-Credentials",
-    "multipart/form-data"
   ],
+  exposedHeaders: ["Authorization"],
 };
-
 app.use(express.json());
 app.use(cors(corsOptions));
 
