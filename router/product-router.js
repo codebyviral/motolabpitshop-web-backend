@@ -11,6 +11,7 @@ Productrouter.route("/add").post(upload.array("images", 5)
 
 Productrouter.post("/get-by-id", getProductById)
 Productrouter.get("/get-all", getAllProducts);
-Productrouter.route("/updateproduct").post((upload.array("images", 5) , verifyAdmin, updateProduct));
+// Productrouter.route("/update").post((upload.array("images", 5) , verifyAdmin, updateProduct));
+Productrouter.post("/update/:id",upload.array("images",5), verifyAdmin, updateProduct)
 Productrouter.delete("/delete-product/:id",verifyAdmin,deleteProduct);
 export default Productrouter;
