@@ -28,16 +28,18 @@ const devFrontendUrl = process.env.DEV_FRONTEND_URL;
 
 const corsOptions = {
   origin: ["http://localhost:5173", "http://localhost:5174"],
-  credentials: true,
-  methods: "GET, POST, DELETE, PATCH, HEAD, PUT, OPTIONS", // Ensure OPTIONS is included
+  credentials: true,  // Allow cookies and authentication
+  methods: "GET, POST, DELETE, PATCH, HEAD, PUT, OPTIONS",
   allowedHeaders: [
     "Content-Type",
     "Authorization",
     "Access-Control-Allow-Credentials",
-    "multipart/form-data"
+    "Access-Control-Allow-Headers",
+    "Access-Control-Allow-Methods"
   ],
-  exposedHeaders: ["Authorization"], // Allows frontend to access Authorization header
+  exposedHeaders: ["Authorization"],  // Allow frontend to access specific headers
 };
+
 
 app.use(express.json());
 app.use(cors(corsOptions));
