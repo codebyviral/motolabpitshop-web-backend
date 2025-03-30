@@ -6,8 +6,7 @@ import verifyAdmin from "../middlewares/Admin.middlewares.js";
 const Productrouter = Router();
 
 
-Productrouter.route("/add").post(upload.array("images", 5)
-    , verifyAdmin, productController);
+Productrouter.route("/add").post(upload.array("images", 5), verifyAdmin, productController);
 
 Productrouter.post("/get-by-id", getProductById)
 Productrouter.get("/get-all", getAllProducts);
