@@ -7,6 +7,7 @@ const orderSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+    rzpId: { type: String, required: false },
     items: [
       {
         product: {
