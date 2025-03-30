@@ -279,7 +279,8 @@ const authControllers = {
   UpdateUser,
   sendEmailOtp,
   verifyAccount,
-  getAllUser
+  getAllUser,
+  
 };
 
 export { authControllers };
