@@ -160,10 +160,138 @@ const guestCheckout = async (req, res) => {
   }
 };
 
+const getUserOrders = async (req, res) => {
+  const userId = req.query.userId;
+
+  try {
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        error: "User ID is required",
+      });
+    }
+
+    const ordersFound = await Order.find({ user: userId })
+      .populate({
+        path: "items.product",
+        select: "title images price", // Only get these fields from Product
+      })
+      .sort({ placedAt: -1 }); // Sort by newest orders first
+
+    if (!ordersFound || ordersFound.length === 0) {
+      return res.status(200).json({
+        success: true,
+        message: "No orders placed",
+        userOrders: [],
+      });
+    }
+
+    // Process all orders and their items
+    const userOrders = [];
+
+    ordersFound.forEach((order) => {
+      // Create a map to combine same products in this order
+      const productMap = new Map();
+
+      order.items.forEach((item) => {
+        const productId = item.product._id.toString();
+        const existingItem = productMap.get(productId);
+
+        if (existingItem) {
+          // If product already exists in this order, update quantity and price
+          existingItem.quantity += item.quantity;
+          existingItem.price += item.price;
+        } else {
+          // Use the first image as the main image, or empty string if no images
+          const mainImage =
+            item.product.images?.length > 0 ? item.product.images[0] : "";
+
+          productMap.set(productId, {
+            image: mainImage,
+            productId: item.product._id,
+            title: item.product.title,
+            quantity: item.quantity,
+            price: item.price,
+            orderId: order._id,
+            orderStatus: order.orderStatus,
+            placedAt: order.placedAt,
+          });
+        }
+      });
+
+      // Add all unique products from this order to userOrders
+      productMap.forEach((item) => {
+        userOrders.push(item);
+      });
+    });
+
+    return res.status(200).json({
+      success: true,
+      userOrders,
+    });
+  } catch (error) {
+    console.error("Error fetching user orders:", error);
+    return res.status(500).json({
+      success: false,
+      error: `Error fetching user orders: ${error.message}`,
+    });
+  }
+};
+
+const getOrderStatus = async (req, res) => {
+  const orderId = req.query.orderId;
+  try {
+    if (!orderId)
+      return res
+        .status(404)
+        .json({ success: false, error: "Order ID is required." });
+
+    const orderDetails = await Order.findById(orderId).lean();
+    if (!orderDetails)
+      return res
+        .status(400)
+        .json({ success: false, message: "No Order details found" });
+
+    // Fetch product details for each item in the order
+    const itemsWithProductDetails = await Promise.all(
+      orderDetails.items.map(async (item) => {
+        const product = await Product.findById(item.product);
+        return {
+          ...item,
+          productDetails: {
+            title: product?.title,
+            description: product?.description,
+            price: product?.price,
+            images: product?.images,
+            rating: product?.rating,
+            size: product?.size,
+            category: product?.category,
+          },
+        };
+      })
+    );
+
+    // Create a new order object with the enhanced items
+    const orderWithProductDetails = {
+      ...orderDetails,
+      items: itemsWithProductDetails,
+    };
+
+    return res.status(200).json({ orderDetails: orderWithProductDetails });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      error: `Error fetching order details: ${error.message}`,
+    });
+  }
+};
+
 const orderControllers = {
   createOrder,
   generateFeatureProducts,
   guestCheckout,
+  getUserOrders,
+  getOrderStatus,
 };
 
 export { orderControllers };
