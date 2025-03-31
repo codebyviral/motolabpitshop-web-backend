@@ -1,9 +1,9 @@
 import express from "express";
-import multer from "multer"
-import { adminControllers } from "../controllers/admin-controller.js"
-
+import { adminControllers } from "../controllers/admin-controller.js";
+import verifyJWT from "../middlewares/auth.middlewares.js";
+import verifyAdmin from "../middlewares/auth.middlewares.js";
 const router = express.Router();
 
-router.route("/login", adminControllers.login)
-
+router.get("/get-orders", verifyJWT, adminControllers.getOrders);
+router.put("/updatestatus/:orderId" ,verifyAdmin , adminControllers.updateOrderStatus);
 export default router;
