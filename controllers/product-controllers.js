@@ -194,3 +194,13 @@ export const deleteCartItems = async (req, res) => {
     return res.status(500).json({ success: false, error });
   }
 };
+
+export const getCategories = async (req, res) => {
+  try {
+    const categories = await Product.find({}).select("category");
+    return res.status(200).json({ categories });
+  } catch (error) {
+    console.log(`Error getting categories: ${error}`);
+    return res.status(500).json({ success: false, error });
+  }
+};
