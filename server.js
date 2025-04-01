@@ -3,7 +3,7 @@ import express from "express";
 import { connectToDataBase } from "./config/db.js";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import path from "path"
+import path from "path";
 import { fileURLToPath } from "url";
 // ========================== Router Imports =========================== //
 import adminRouter from "./router/admin-router.js";
@@ -29,7 +29,10 @@ const clientSecret = process.env.CLIENT_SECRET;
 const devFrontendUrl = process.env.DEV_FRONTEND_URL;
 
 const corsOptions = {
-  origin: ["https://motolabpitshop.vercel.app","https://motolab-admin.vercel.app"],
+  origin: [
+    "https://motolabpitshop.vercel.app",
+    "https://motolab-admin.vercel.app",
+  ],
   // origin: ["http://localhost:5173", "http://localhost:5174"],
   credentials: true,
   methods: "GET, POST, DELETE, PATCH, HEAD, PUT, OPTIONS",
@@ -44,10 +47,8 @@ const corsOptions = {
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-
 app.use(express.json());
 app.use(cors(corsOptions));
-
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public"), { index: false }));
@@ -81,11 +82,16 @@ app.get("/", (req, res) => {
   res.send(`This is Motolabpitshop Backend server`);
 });
 
-await connectToDataBase().then(() => {
-  console.log(`Almost there...`);
-  app.listen(port, () => {
-    console.log(`Motolabpitshop Server is running on port: ${port}`);
-  });
-});
+(async () => {
+  try {
+    await connectToDataBase();
+    console.log(`Almost there...`);
+    app.listen(port, () => {
+      console.log(`Motolabpitshop Server is running on port: ${port}`);
+    });
+  } catch (error) {
+    console.error("Database connection failed:", error);
+  }
+})();
 
 export default app;
