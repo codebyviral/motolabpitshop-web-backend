@@ -27,10 +27,7 @@ const clientSecret = process.env.CLIENT_SECRET;
 const devFrontendUrl = process.env.DEV_FRONTEND_URL;
 
 const corsOptions = {
-  origin: [
-    "https://motolabpitshop.vercel.app",
-    "https://motolab-admin.vercel.app",
-  ],
+  origin: ["https://motolabpitshop.vercel.app","https://motolab-admin.vercel.app"],
   // origin: ["http://localhost:5173", "http://localhost:5174"],
   credentials: true,
   methods: "GET, POST, DELETE, PATCH, HEAD, PUT, OPTIONS",
@@ -43,7 +40,7 @@ const corsOptions = {
 };
 app.use(express.json());
 app.use(cors(corsOptions));
-app.use(express.static(path.join(__dirname, "./public")));
+app.use(express.static(path.join(__dirname,'./public')))
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public", { index: false }));
 app.use(cookieParser());
