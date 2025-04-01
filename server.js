@@ -4,6 +4,7 @@ import { connectToDataBase } from "./config/db.js";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import path from "path"
+import { fileURLToPath } from "url";
 // ========================== Router Imports =========================== //
 import adminRouter from "./router/admin-router.js";
 import authRouter from "./router/auth-router.js";
@@ -39,6 +40,11 @@ const corsOptions = {
   ],
   exposedHeaders: ["Authorization"],
 };
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+
 app.use(express.json());
 app.use(cors(corsOptions));
 
