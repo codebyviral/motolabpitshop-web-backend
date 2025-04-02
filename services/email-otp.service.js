@@ -59,7 +59,7 @@ const otpEmailTemplate = (name, email, otp) => `<!DOCTYPE html>
             background-color: #fffde7;
             padding: 10px;
             border-radius: 5px;
-            border-left: 4px solid #ffd54f;
+            border-left: 4px solid #f7d117;
             margin: 20px 0;
             font-size: 14px;
         }
@@ -84,6 +84,21 @@ const otpEmailTemplate = (name, email, otp) => `<!DOCTYPE html>
             font-size: 12px;
             text-align: center;
             color: #666;
+        }
+        @media (max-width: 480px) {
+            .otp-code {
+                font-size: 24px;
+                letter-spacing: 6px;
+                padding: 10px;
+            }
+            .security-note {
+                padding: 8px;
+            }
+            .button {
+                width: 100%;
+                box-sizing: border-box;
+                text-align: center;
+            }
         }
     </style>
 </head>

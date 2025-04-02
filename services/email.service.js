@@ -71,6 +71,14 @@ const welcomeTemplate = (name, email) => `<!DOCTYPE html>
             text-align: center;
             color: #666;
         }
+        @media (max-width: 480px) {
+            .benefits {
+                flex-direction: column;
+            }
+            .benefit {
+                margin-bottom: 15px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -85,7 +93,7 @@ const welcomeTemplate = (name, email) => `<!DOCTYPE html>
             <div class="benefit">
                 <div class="benefit-icon">🚚</div>
                 <div>Free Shipping</div>
-                <div>On orders over $100</div>
+                <div>in Tamil Nadu</div>
             </div>
             <div class="benefit">
                 <div class="benefit-icon">↩️</div>
@@ -113,7 +121,7 @@ const welcomeTemplate = (name, email) => `<!DOCTYPE html>
 export const sendWelcomeEmail = async (name, to, subject) => {
   try {
     const htmlContent = welcomeTemplate(name, to);
-
+    
     await transporter.sendMail({
       from: `MotoLab PitShop <${process.env.NODEMAILER_USER_EMAIL}>`,
       to,

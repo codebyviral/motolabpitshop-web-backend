@@ -9,16 +9,17 @@ const transporter = nodemailer.createTransport({
     pass: process.env.NODEMAILER_USER_PASSWORD,
   },
 });
-const orderConfirmTemplate = (
-    name,
-    orderNumber,
-    email
-  ) => `<!DOCTYPE html>
+
+const newOrderAdminTemplate = (
+  orderNumber,
+  customerName,
+  customerEmail
+) => `<!DOCTYPE html>
   <html lang="en">
   <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Order Confirmation - MotoLab PitShop</title>
+      <title>New Order - MotoLab PitShop</title>
       <style>
           body {
               font-family: Arial, sans-serif;
@@ -58,8 +59,8 @@ const orderConfirmTemplate = (
               color: #666;
               font-size: 16px;
           }
-          .confirmation-note {
-              background-color: #fffde7;
+          .info-box {
+              background-color: #fff;
               padding: 15px;
               border-radius: 5px;
               border-left: 4px solid #f7d117;
@@ -81,19 +82,14 @@ const orderConfirmTemplate = (
               text-align: center;
               color: #666;
           }
-          @media only screen and (max-width: 480px) {
-              .header {
-                  padding: 15px;
-              }
-              .content {
-                  padding: 15px;
-              }
-              .order-number {
-                  font-size: 20px;
+          @media (max-width: 480px) {
+              .info-box {
+                  padding: 10px;
               }
               .button {
-                  padding: 10px 20px;
-                  font-size: 14px;
+                  width: 100%;
+                  text-align: center;
+                  box-sizing: border-box;
               }
           }
       </style>
@@ -103,61 +99,62 @@ const orderConfirmTemplate = (
           <div class="logo">MotoLab PitShop</div>
       </div>
       <div class="content">
-          <h1>Order Confirmation</h1>
-          <p>Hello ${name},</p>
-          <p>We've successfully received your order and it's now being processed.</p>
+          <h1>New Order Notification</h1>
+          <p>A new order has been placed on your website.</p>
           
           <div class="order-container">
-              <div class="order-number"> #${orderNumber}</div>
-              <div class="order-date">${new Date().toLocaleDateString('en-US', { 
-                  weekday: 'long', 
-                  year: 'numeric', 
-                  month: 'long', 
-                  day: 'numeric',
-                  hour: '2-digit',
-                  minute: '2-digit'
+              <div class="order-number">Order #${orderNumber}</div>
+              <div class="order-date">${new Date().toLocaleDateString("en-US", {
+                weekday: "long",
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
               })}</div>
           </div>
           
-          <div class="confirmation-note">
-              You'll receive another email when your order ships. You can check your order status anytime in your account.
+          <div class="info-box">
+              <p><strong>Customer:</strong> ${customerName}</p>
+              <p><strong>Email:</strong> ${customerEmail}</p>
           </div>
           
           <center>
-              <a href="https://motolabpitshop.vercel.app/your-account" class="button">VIEW ORDER HISTORY</a>
+              <a href="https://motolabpitshop.vercel.app/admin/orders" class="button">VIEW ORDER IN ADMIN PANEL</a>
           </center>
           
-          <p>Thank you for shopping with MotoLab PitShop!</p>
+          <p>Please process this order at your earliest convenience.</p>
       </div>
       <div class="footer">
-          <p>This email was sent to ${email}. If you have any questions, please contact our support team at support@motolabpitshop.com</p>
+          <p>This is an automated notification sent to administrators.</p>
           <p>© ${new Date().getFullYear()} MotoLab PitShop. All rights reserved.</p>
       </div>
   </body>
   </html>`;
-  
-  export const sendOrderConfirmationEmail = async (
-    customerName,
-    orderNumber,
-    email,
-    subject = `Your MotoLab PitShop Order Confirmation`
-  ) => {
-    try {
-      const htmlContent = orderConfirmTemplate(
-        customerName,
-        orderNumber,
-        email
-      );
-  
-      await transporter.sendMail({
-        from: `MotoLab PitShop <${process.env.NODEMAILER_USER_EMAIL}>`,
-        to: email,
-        subject,
-        html: htmlContent,
-      });
-      console.log("Order confirmation email sent successfully to:", email);
-    } catch (error) {
-      console.error("Error sending order confirmation email:", error);
-      throw error;
-    }
-  };
+
+export const sendNewOrderAdminEmail = async (
+  orderNumber,
+  customerName,
+  customerEmail,
+  adminEmail = process.env.ADMIN_EMAIL,
+  subject = `New Order #${orderNumber} - MotoLab PitShop`
+) => {
+  try {
+    const htmlContent = newOrderAdminTemplate(
+      orderNumber,
+      customerName,
+      customerEmail
+    );
+
+    await transporter.sendMail({
+      from: `MotoLab PitShop <${process.env.NODEMAILER_USER_EMAIL}>`,
+      to: adminEmail,
+      subject,
+      html: htmlContent,
+    });
+    console.log("New order admin notification sent to:", adminEmail);
+  } catch (error) {
+    console.error("Error sending admin notification email:", error);
+    throw error;
+  }
+};
