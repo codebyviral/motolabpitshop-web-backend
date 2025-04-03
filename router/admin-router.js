@@ -5,6 +5,6 @@ import verifyJWT from "../middlewares/auth.middlewares.js";
 const router = express.Router();
 
 router.get("/get-orders", verifyJWT, adminControllers.getOrders);
-router.put("/updatestatus",verifyJWT,adminControllers.updateOrderStatus)
+router.put("/updatestatus/:orderId",verifyJWT,adminControllers.updateOrderStatus)
 
 export default router;
