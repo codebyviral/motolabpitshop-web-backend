@@ -82,7 +82,7 @@ const getOrders = async (req, res) => {
 
 const updateOrderStatus = async (req, res) => {
   try {
-    const { orderId } = req.params;
+    const orderId = req.query.orderId;
     const { orderStatus } = req.body;
 
     if (
