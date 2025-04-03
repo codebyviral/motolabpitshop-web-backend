@@ -5,8 +5,7 @@ import { Order } from "../models/order.model.js";
 // order.controller.js
 const createOrder = async (req, res) => {
   try {
-    const { userId, phoneNumber, shippingaddress, items, razorpayOrderId } =
-      req.body;
+    const { userId, phoneNumber, shippingaddress, items, deliveryCharge, razorpayOrderId } = req.body;
 
     // Validate required fields
     if (!userId || !items || items.length === 0) {
@@ -33,14 +32,15 @@ const createOrder = async (req, res) => {
     );
     console.log("razorpayOrderId", razorpayOrderId);
     // Create order
+    console.log("Order Items", orderItems)
     const order = await Order.create({
       user: userId,
       rzpId: razorpayOrderId,
       phoneNumber,
       shippingAddress: shippingaddress,
       items: orderItems,
-      totalAmount: orderItems.reduce(
-        (sum, item) => sum + item.price * item.quantity,
+      totalAmount: deliveryCharge + orderItems.reduce(
+        (sum, item) => sum + item.price,
         0
       ),
     });

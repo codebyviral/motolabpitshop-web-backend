@@ -10,8 +10,7 @@ const getOrders = async (req, res) => {
         path: "items.product",
         model: "Product",
         select: "title description price",
-      })
-      .sort({ placedAt: -1 });
+      }).sort({ placedAt: -1 });
 
     if (!orders || orders.length === 0) {
       return res.status(404).json({

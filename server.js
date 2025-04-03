@@ -29,10 +29,7 @@ const clientSecret = process.env.CLIENT_SECRET;
 const devFrontendUrl = process.env.DEV_FRONTEND_URL;
 
 const corsOptions = {
-  origin: [
-    "https://motolabpitshop.vercel.app",
-    "https://motolab-admin.vercel.app",
-  ],
+  origin: ["https://motolabpitshop.vercel.app","https://motolab-admin.vercel.app",],
   // origin: ["http://localhost:5173", "http://localhost:5174"],
   credentials: true,
   methods: "GET, POST, DELETE, PATCH, HEAD, PUT, OPTIONS",
