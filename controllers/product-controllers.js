@@ -3,6 +3,8 @@ import { Product } from "../models/product.model.js";
 import { uploadCloudinery } from "../utils/cloudinary.utils.js";
 import { ProductSchema } from "../validation/auth.validation.js";
 import { v2 as cloudinary } from "cloudinary";
+import mongoose from "mongoose";
+
 export const getProductById = async (req, res) => {
   try {
     const { productId } = req.body;
@@ -141,7 +143,7 @@ export const updateProduct = async (req, res) => {
     if (data.description) updateObject.description = data.description;
     if (data.price) updateObject.price = data.price;
     if (data.category) updateObject.category = data.category;
-    if (data.hasOwnProperty('quantity')) updateObject.quantity = data.quantity;
+    if (data.hasOwnProperty("quantity")) updateObject.quantity = data.quantity;
     if (data.size) updateObject.size = data.size;
     if (imageUrls.length > 0) updateObject.images = imageUrls; // Only update images if new ones exist
 
@@ -208,18 +210,93 @@ export const getCategories = async (req, res) => {
 export const updateCartItemQuantity = async (req, res) => {
   try {
     const { userId, cartItemId } = req.params;
-    const { quantity } = req.body;
-    console.log("userId", userId);
-    console.log("cartItemId", cartItemId);
-    // search user in db & // select cart field
-    const cartItems = await User.findById(`${userId}`).select("cart");
-    // search product id item
-    const itemFound = cartItems.find((el) => el.productId == cartItemId);
-    // check if stock quantity >= user's Requests
-    // update quantity
+    const { action, newQuantity } = req.body;
+
+    console.log("userId:", userId);
+    console.log("cartItemId:", cartItemId);
+    console.log("Action:", action);
+
+    // Convert cartItemId to ObjectId
+    const objectIdCartItemId = new mongoose.Types.ObjectId(cartItemId);
+
+    // Fetch product to check stock availability
+    const product = await Product.findById(objectIdCartItemId);
+    if (!product) {
+      return res.status(404).json({ success: false, message: "Product not found" });
+    }
+
+    // Fetch the user document
+    const user = await User.findById(userId);
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
+    }
+
+    // Find the cart item by productId
+    const itemFound = user.cart.find(
+      (item) => item.productId.toString() === objectIdCartItemId.toString()
+    );
+
+    if (!itemFound) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Cart item not found" });
+    }
+
+    // Handle Increase Action
+    if (action === "increase") {
+      if (itemFound.quantity + 1 > product.quantity) {
+        return res.status(400).json({
+          success: false,
+          message: `Only ${product.quantity} items left in stock`,
+        });
+      }
+      itemFound.quantity += 1;
+    }
+
+    // Handle Decrease Action
+    else if (action === "decrease") {
+      if (itemFound.quantity - 1 < 1) {
+        return res.status(400).json({
+          success: false,
+          message: "Quantity cannot be less than 1",
+        });
+      }
+      itemFound.quantity -= 1;
+    }
+
+    // Handle Direct Quantity Update (if action is not provided)
+    else if (newQuantity) {
+      if (newQuantity > product.quantity) {
+        return res.status(400).json({
+          success: false,
+          message: `Only ${product.quantity} items left in stock`,
+        });
+      }
+      if (newQuantity < 1) {
+        return res.status(400).json({
+          success: false,
+          message: "Quantity cannot be less than 1",
+        });
+      }
+      itemFound.quantity = newQuantity;
+    } else {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid action or newQuantity",
+      });
+    }
+
+    // Mark cart as modified
+    user.markModified("cart");
+
+    // Save the updated user document
+    await user.save();
+
     return res.status(200).json({ success: true, itemFound });
   } catch (error) {
-    console.log(`Error updateCartItemQuantity: ${error}`);
+    console.log(`Error updating cart item quantity: ${error}`);
     return res.status(500).json({ success: false, error });
   }
 };

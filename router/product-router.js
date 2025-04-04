@@ -8,7 +8,7 @@ import {
   deleteProduct,
   deleteCartItems,
   getCategories,
-  updateCartItemQuantity
+  updateCartItemQuantity,
 } from "../controllers/product-controllers.js";
 import verifyAdmin from "../middlewares/Admin.middlewares.js";
 
