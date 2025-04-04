@@ -75,7 +75,9 @@ export const productController = async (req, res) => {
     });
   } catch (error) {
     console.error("Error:", error);
-    res.status(500).json({ error: "Internal Server Error", details: error.message });
+    res
+      .status(500)
+      .json({ error: "Internal Server Error", details: error.message });
   }
 };
 
@@ -147,7 +149,7 @@ export const updateProduct = async (req, res) => {
     const updatedProduct = await Product.findByIdAndUpdate(
       id,
       { $set: updateObject },
-      { new: true }
+      { new: true, overwrite: true }
     );
 
     return res.status(200).json({
