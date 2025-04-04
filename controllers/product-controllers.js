@@ -147,7 +147,7 @@ export const updateProduct = async (req, res) => {
     const updatedProduct = await Product.findByIdAndUpdate(
       id,
       { $set: updateObject },
-      { new: true }
+      { new: true , runValidators:true }
     );
 
     return res.status(200).json({
