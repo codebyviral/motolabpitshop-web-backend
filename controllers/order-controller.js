@@ -5,9 +5,28 @@ import { Order } from "../models/order.model.js";
 // order.controller.js
 const createOrder = async (req, res) => {
   try {
-    const { userId, phoneNumber, shippingaddress, items, deliveryCharge, razorpayOrderId } = req.body;
+    let {
+      userId,
+      phoneNumber,
+      shippingaddress,
+      items,
+      deliveryCharge,
+      razorpayOrderId,
+    } = req.body;
 
-    // Validate required fields
+    // 🔥 Fix: Normalize items to always be an array
+    if (!Array.isArray(items)) {
+      if (typeof items === 'object' && items !== null) {
+        items = [items];
+      } else {
+        return res.status(400).json({
+          success: false,
+          message: "Items should be an array or a valid object.",
+        });
+      }
+    }
+
+    // ❗Validate required fields
     if (!userId || !items || items.length === 0) {
       return res.status(400).json({
         success: false,
@@ -15,34 +34,40 @@ const createOrder = async (req, res) => {
       });
     }
 
-    // Process items
+    // 🔍 Process each item
     const orderItems = await Promise.all(
       items.map(async (item) => {
         const product = await Product.findById(item.product);
         if (!product) {
           throw new Error(`Product not found: ${item.product}`);
         }
+
+        // 👇 If price is not provided in item, fall back to product.price
+        const price = item.price ?? product.price;
+
+        if (typeof price !== "number") {
+          throw new Error(`Invalid or missing price for item: ${product.title}`);
+        }
+
         return {
           product: product._id,
           title: product.title,
-          quantity: item.quantity,
-          price: item.price,
+          quantity: item.quantity || 1,
+          price,
         };
       })
     );
-    console.log("razorpayOrderId", razorpayOrderId);
-    // Create order
-    console.log("Order Items", orderItems)
+    const totalAmount =
+      deliveryCharge +
+      orderItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    // ✅ Create order
     const order = await Order.create({
       user: userId,
       rzpId: razorpayOrderId,
       phoneNumber,
       shippingAddress: shippingaddress,
       items: orderItems,
-      totalAmount: deliveryCharge + orderItems.reduce(
-        (sum, item) => sum + item.price,
-        0
-      ),
+      totalAmount,
     });
 
     res.status(201).json({
@@ -51,13 +76,14 @@ const createOrder = async (req, res) => {
       order,
     });
   } catch (error) {
-    console.log(error);
+    console.error("🔥 Order Creation Error:", error);
     res.status(500).json({
       success: false,
       message: error.message || "Error creating order",
     });
   }
 };
+
 
 const generateFeatureProducts = async (req, res) => {
   try {
@@ -74,16 +100,17 @@ const generateFeatureProducts = async (req, res) => {
 
 const guestCheckout = async (req, res) => {
   try {
-    const { fullName, email, phoneNumber, address, items } = req.body;
-
+    const { fullName, email, phoneNumber, address, items , isFreeDelivery } = req.body;
+    console.log(`Address from frontend: ${JSON.stringify(address)}`);
+    
     // Validate items
     if (!items || items.length === 0) {
       return res.status(400).json({ message: "Please provide valid items" });
     }
-
+    
     let totalAmount = 0;
     const orderItems = [];
-
+    
     // Validate products and calculate total amount
     for (const item of items) {
       const product = await Product.findById(item.product);
@@ -92,7 +119,7 @@ const guestCheckout = async (req, res) => {
           .status(404)
           .json({ message: `Product with ID ${item.product} not found` });
       }
-
+      
       orderItems.push({
         product: product._id,
         title: product.title,
@@ -101,18 +128,21 @@ const guestCheckout = async (req, res) => {
         quantity: item.quantity,
         price: product.price,
       });
-
+      
       totalAmount += product.price * item.quantity;
     }
 
-    // Format the address into a single string
-    const formattedShippingAddress = `${address.addressLine1}, ${address.addressLine2}, ${address.city}, ${address.state}, ${address.pinCode}`;
-
+    const deliveryCharge = isFreeDelivery ? 0 : 150;
+    totalAmount += deliveryCharge
+    
+    // The address is already formatted in the frontend, so use it directly
+    const shippingAddress = address;
+    
     // Check if the user already exists
     const userExists = await User.findOne({ email });
-
+    
     let user, newOrder;
-
+    
     if (userExists) {
       // If the user exists, use the existing user
       user = userExists;
@@ -122,30 +152,30 @@ const guestCheckout = async (req, res) => {
         fullName,
         email,
         phoneNumber,
-        address,
+        address: [{ addressLine1: shippingAddress }], // Store the address in the user's address array
         isGuest: true, // Mark the user as a guest
       });
-
+      
       await user.save();
     }
-
+    
     // Create the order
     newOrder = new Order({
       user: user._id, // Associate the order with the user (existing or new)
       items: orderItems,
       phoneNumber,
-      shippingAddress: formattedShippingAddress, // Use the formatted address
+      shippingAddress: shippingAddress, // Use the address directly
       totalAmount,
       paymentStatus: "Success", // Assuming payment is successful for guest checkout
       orderStatus: "Pending",
     });
-
+    
     await newOrder.save();
-
+    
     // Push the new order into the user's orders array
     user.orders.push({ orderId: newOrder._id });
     await user.save();
-
+    
     res.status(201).json({
       message: "Guest checkout successful",
       user,

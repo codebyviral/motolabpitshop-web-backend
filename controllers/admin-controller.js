@@ -1,6 +1,6 @@
 import { Order } from "../models/order.model.js";
 import { Product } from "../models/product.model.js";
-
+import {sendAdminEmail} from "../services/email.admin.service.js"
 const getOrders = async (req, res) => {
   try {
     // Get all orders with populated user and product data
@@ -124,6 +124,25 @@ const updateOrderStatus = async (req, res) => {
   }
 };
 
-const adminControllers = { getOrders, updateOrderStatus };
+ const SendEmailByAdmin = async(req,res)=>{
+  const {name , email ,subject, message } = req.body;
+  if(!name || !email || !subject || !message){
+    return res.status(400).json({
+      success: false,
+      message: "All fields are required",
+    });
+  }
+  try {
+    await sendAdminEmail(name, email, subject, message);
+    res.status(200).json({ message: "Email sent successfully" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to send email" });
+  }
+
+
+}
+
+const adminControllers = { getOrders, updateOrderStatus ,SendEmailByAdmin };
 
 export { adminControllers };

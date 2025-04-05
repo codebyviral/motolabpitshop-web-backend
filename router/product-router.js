@@ -8,9 +8,11 @@ import {
   deleteProduct,
   deleteCartItems,
   getCategories,
+  addRating,
   updateCartItemQuantity,
 } from "../controllers/product-controllers.js";
 import verifyAdmin from "../middlewares/Admin.middlewares.js";
+import verifyJWT from "../middlewares/auth.middlewares.js";
 
 const Productrouter = Router();
 
@@ -31,4 +33,5 @@ Productrouter.route("/update-product/:id").put(
 );
 Productrouter.delete("/delete-product/:id", verifyAdmin, deleteProduct);
 Productrouter.delete("/delete-cart-items", deleteCartItems);
+Productrouter.put("/:id/rate", addRating);
 export default Productrouter;
