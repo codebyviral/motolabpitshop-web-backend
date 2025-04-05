@@ -222,7 +222,9 @@ export const updateCartItemQuantity = async (req, res) => {
     // Fetch product to check stock availability
     const product = await Product.findById(objectIdCartItemId);
     if (!product) {
-      return res.status(404).json({ success: false, message: "Product not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Product not found" });
     }
 
     // Fetch the user document
@@ -298,5 +300,44 @@ export const updateCartItemQuantity = async (req, res) => {
   } catch (error) {
     console.log(`Error updating cart item quantity: ${error}`);
     return res.status(500).json({ success: false, error });
+  }
+};
+
+export const addRating = async (req, res) => {
+  const productId = req.params.id;
+  const { newRating , userId } = req.body;
+
+  try {
+    const product = await Product.findById(productId);
+    if (!product) return res.status(404).json({ message: "Product not found" });
+
+    // Check if user already rated
+    const alreadyRated = product.ratings.find(
+      (r) => r.user.toString() === userId.toString()
+    );
+
+    if (alreadyRated) {
+      return res
+        .status(400)
+        .json({ message: "You have already rated this product" });
+    }
+
+    // Add new rating
+    product.ratings.push({ user:userId, rating: newRating });
+    product.ratingCount = product.ratings.length;
+
+    // Recalculate average rating
+    const total = product.ratings.reduce((acc, item) => acc + item.rating, 0);
+    product.rating = total / product.ratingCount;
+
+    await product.save();
+
+    res.status(200).json({
+      message: "Rating added successfully",
+      avgRating: product.rating.toFixed(1),
+      totalRatings: product.numReviews,
+    });
+  } catch (err) {
+    res.status(500).json({ message: "Server error", error: err });
   }
 };
