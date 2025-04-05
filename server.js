@@ -36,6 +36,7 @@ const corsOptions = {
     "Content-Type",
     "Authorization",
     "Access-Control-Allow-Credentials",
+    "cache-control"
   ],
   exposedHeaders: ["Authorization"],
 };
