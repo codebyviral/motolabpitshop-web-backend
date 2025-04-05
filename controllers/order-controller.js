@@ -5,9 +5,28 @@ import { Order } from "../models/order.model.js";
 // order.controller.js
 const createOrder = async (req, res) => {
   try {
-    const { userId, phoneNumber, shippingaddress, items, deliveryCharge, razorpayOrderId } = req.body;
+    let {
+      userId,
+      phoneNumber,
+      shippingaddress,
+      items,
+      deliveryCharge,
+      razorpayOrderId,
+    } = req.body;
 
-    // Validate required fields
+    // 🔥 Fix: Normalize items to always be an array
+    if (!Array.isArray(items)) {
+      if (typeof items === 'object' && items !== null) {
+        items = [items];
+      } else {
+        return res.status(400).json({
+          success: false,
+          message: "Items should be an array or a valid object.",
+        });
+      }
+    }
+
+    // ❗Validate required fields
     if (!userId || !items || items.length === 0) {
       return res.status(400).json({
         success: false,
@@ -15,34 +34,42 @@ const createOrder = async (req, res) => {
       });
     }
 
-    // Process items
+    // 🔍 Process each item
     const orderItems = await Promise.all(
       items.map(async (item) => {
         const product = await Product.findById(item.product);
         if (!product) {
           throw new Error(`Product not found: ${item.product}`);
         }
+
+        // 👇 If price is not provided in item, fall back to product.price
+        const price = item.price ?? product.price;
+
+        if (typeof price !== "number") {
+          throw new Error(`Invalid or missing price for item: ${product.title}`);
+        }
+
         return {
           product: product._id,
           title: product.title,
-          quantity: item.quantity,
-          price: item.price,
+          quantity: item.quantity || 1,
+          price,
         };
       })
     );
-    console.log("razorpayOrderId", razorpayOrderId);
-    // Create order
-    console.log("Order Items", orderItems)
+
+    const totalAmount =
+      deliveryCharge +
+      orderItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+    // ✅ Create order
     const order = await Order.create({
       user: userId,
       rzpId: razorpayOrderId,
       phoneNumber,
       shippingAddress: shippingaddress,
       items: orderItems,
-      totalAmount: deliveryCharge + orderItems.reduce(
-        (sum, item) => sum + item.price,
-        0
-      ),
+      totalAmount,
     });
 
     res.status(201).json({
@@ -51,13 +78,14 @@ const createOrder = async (req, res) => {
       order,
     });
   } catch (error) {
-    console.log(error);
+    console.error("🔥 Order Creation Error:", error);
     res.status(500).json({
       success: false,
       message: error.message || "Error creating order",
     });
   }
 };
+
 
 const generateFeatureProducts = async (req, res) => {
   try {
