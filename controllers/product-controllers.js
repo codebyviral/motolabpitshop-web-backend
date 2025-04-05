@@ -75,7 +75,9 @@ export const productController = async (req, res) => {
     });
   } catch (error) {
     console.error("Error:", error);
-    res.status(500).json({ error: "Internal Server Error", details: error.message });
+    res
+      .status(500)
+      .json({ error: "Internal Server Error", details: error.message });
   }
 };
 
@@ -139,7 +141,7 @@ export const updateProduct = async (req, res) => {
     if (data.description) updateObject.description = data.description;
     if (data.price) updateObject.price = data.price;
     if (data.category) updateObject.category = data.category;
-    if (data.quantity) updateObject.quantity = data.quantity;
+    if (data.hasOwnProperty('quantity')) updateObject.quantity = data.quantity;
     if (data.size) updateObject.size = data.size;
     if (imageUrls.length > 0) updateObject.images = imageUrls; // Only update images if new ones exist
 
@@ -147,7 +149,7 @@ export const updateProduct = async (req, res) => {
     const updatedProduct = await Product.findByIdAndUpdate(
       id,
       { $set: updateObject },
-      { new: true }
+      { new: true, runValidators: true }
     );
 
     return res.status(200).json({
@@ -199,6 +201,25 @@ export const getCategories = async (req, res) => {
     return res.status(200).json({ categories });
   } catch (error) {
     console.log(`Error getting categories: ${error}`);
+    return res.status(500).json({ success: false, error });
+  }
+};
+
+export const updateCartItemQuantity = async (req, res) => {
+  try {
+    const { userId, cartItemId } = req.params;
+    const { quantity } = req.body;
+    console.log("userId", userId);
+    console.log("cartItemId", cartItemId);
+    // search user in db & // select cart field
+    const cartItems = await User.findById(`${userId}`).select("cart");
+    // search product id item
+    const itemFound = cartItems.find((el) => el.productId == cartItemId);
+    // check if stock quantity >= user's Requests
+    // update quantity
+    return res.status(200).json({ success: true, itemFound });
+  } catch (error) {
+    console.log(`Error updateCartItemQuantity: ${error}`);
     return res.status(500).json({ success: false, error });
   }
 };
