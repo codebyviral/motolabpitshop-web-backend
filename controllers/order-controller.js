@@ -171,7 +171,7 @@ const guestCheckout = async (req, res) => {
       phoneNumber,
       shippingAddress: shippingAddress, // Use the address directly
       totalAmount,
-      paymentStatus: "Pending", // Assuming payment is successful for guest checkout
+      paymentStatus: "Unverified Guest", // Assuming payment is successful for guest checkout
       orderStatus: "Pending",
     });
 
