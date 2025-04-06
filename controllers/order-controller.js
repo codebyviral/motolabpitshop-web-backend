@@ -224,6 +224,11 @@ const getUserOrders = async (req, res) => {
       const productMap = new Map();
 
       order.items.forEach((item) => {
+        // Skip if product is null (product may have been deleted)
+        if (!item.product) {
+          return;
+        }
+
         const productId = item.product._id.toString();
         const existingItem = productMap.get(productId);
 
