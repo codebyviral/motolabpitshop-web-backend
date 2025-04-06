@@ -1,6 +1,7 @@
 import { User } from "../models/user.model.js";
 import { Product } from "../models/product.model.js";
 import { Order } from "../models/order.model.js";
+import bcrypt from "bcryptjs";
 
 // order.controller.js
 const createOrder = async (req, res) => {
@@ -16,7 +17,7 @@ const createOrder = async (req, res) => {
 
     // 🔥 Fix: Normalize items to always be an array
     if (!Array.isArray(items)) {
-      if (typeof items === 'object' && items !== null) {
+      if (typeof items === "object" && items !== null) {
         items = [items];
       } else {
         return res.status(400).json({
@@ -46,7 +47,9 @@ const createOrder = async (req, res) => {
         const price = item.price ?? product.price;
 
         if (typeof price !== "number") {
-          throw new Error(`Invalid or missing price for item: ${product.title}`);
+          throw new Error(
+            `Invalid or missing price for item: ${product.title}`
+          );
         }
 
         return {
@@ -84,7 +87,6 @@ const createOrder = async (req, res) => {
   }
 };
 
-
 const generateFeatureProducts = async (req, res) => {
   try {
     const products = await Product.find();
@@ -100,17 +102,18 @@ const generateFeatureProducts = async (req, res) => {
 
 const guestCheckout = async (req, res) => {
   try {
-    const { fullName, email, phoneNumber, address, items , isFreeDelivery } = req.body;
+    const { fullName, email, password, phoneNumber, address, items, isFreeDelivery } =
+      req.body;
     console.log(`Address from frontend: ${JSON.stringify(address)}`);
-    
+
     // Validate items
     if (!items || items.length === 0) {
       return res.status(400).json({ message: "Please provide valid items" });
     }
-    
+
     let totalAmount = 0;
     const orderItems = [];
-    
+
     // Validate products and calculate total amount
     for (const item of items) {
       const product = await Product.findById(item.product);
@@ -119,7 +122,7 @@ const guestCheckout = async (req, res) => {
           .status(404)
           .json({ message: `Product with ID ${item.product} not found` });
       }
-      
+
       orderItems.push({
         product: product._id,
         title: product.title,
@@ -128,37 +131,39 @@ const guestCheckout = async (req, res) => {
         quantity: item.quantity,
         price: product.price,
       });
-      
+
       totalAmount += product.price * item.quantity;
     }
 
     const deliveryCharge = isFreeDelivery ? 0 : 150;
-    totalAmount += deliveryCharge
-    
+    totalAmount += deliveryCharge;
+
     // The address is already formatted in the frontend, so use it directly
     const shippingAddress = address;
-    
+
     // Check if the user already exists
-    // const userExists = await User.findOne({ email });
-    
+    const userExists = await User.findOne({ email });
+
     let user, newOrder;
-    
-    // if (userExists) {
-    //   // If the user exists, use the existing user
-    //   user = userExists;
-    // } else {
-    //   // If the user does not exist, create a new guest user
-    //   user = new User({
-    //     fullName,
-    //     email,
-    //     phoneNumber,
-    //     address: [{ addressLine1: shippingAddress }], // Store the address in the user's address array
-    //     isGuest: true, // Mark the user as a guest
-    //   });
-      
-    //   await user.save();
-    // }
-    
+
+    if (userExists) {
+      // If the user exists, use the existing user
+      user = userExists;
+    } else {
+      const hashed_password = await bcrypt.hash(password, 10);
+      // If the user does not exist, create a new guest user
+      user = new User({
+        fullName,
+        email,
+        password: hashed_password,
+        phoneNumber,
+        address: [{ addressLine1: shippingAddress }], // Store the address in the user's address array
+        isGuest: true, // Mark the user as a guest
+      });
+
+      await user.save();
+    }
+
     // Create the order
     newOrder = new Order({
       user: user._id, // Associate the order with the user (existing or new)
@@ -166,16 +171,16 @@ const guestCheckout = async (req, res) => {
       phoneNumber,
       shippingAddress: shippingAddress, // Use the address directly
       totalAmount,
-      paymentStatus: "Success", // Assuming payment is successful for guest checkout
+      paymentStatus: "Pending", // Assuming payment is successful for guest checkout
       orderStatus: "Pending",
     });
-    
+
     await newOrder.save();
-    
+
     // Push the new order into the user's orders array
     user.orders.push({ orderId: newOrder._id });
     await user.save();
-    
+
     res.status(201).json({
       message: "Guest checkout successful",
       user,
