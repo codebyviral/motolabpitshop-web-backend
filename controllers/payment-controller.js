@@ -31,12 +31,14 @@ const paymentVerification = async (req, res) => {
     const isSignatureValid = expectedSignature === razorpay_signature;
     if (!isSignatureValid) {
       console.log("❌ Payment Verification Failed: Invalid Signature");
-      return res
-        .status(400)
-        .json({ success: false, message: "Invalid Payment Signature" });
+      return res.status(400).json({
+        success: false,
+        message: "Invalid Payment Signature",
+      });
     }
 
     console.log("✅ Payment Verified Successfully");
+
     await Payment.create({
       razorpay_order_id,
       razorpay_payment_id,
@@ -55,13 +57,18 @@ const paymentVerification = async (req, res) => {
         const email = updatedOrder.user.email;
         const orderNumber = razorpay_order_id;
 
-        await sendOrderConfirmationEmail(customerName, orderNumber, email);
-        await sendNewOrderAdminEmail(razorpay_order_id, customerName, email);
+        // Await BOTH email sending promises
+        await Promise.all([
+          sendOrderConfirmationEmail(customerName, orderNumber, email),
+          sendNewOrderAdminEmail(razorpay_order_id, customerName, email),
+        ]);
       } catch (emailError) {
         console.error("❌ Email sending failed:", emailError);
+        // You could log this error into DB for retry, or continue silently.
       }
     }
 
+    // Redirect *after everything has completed*
     return res.redirect(
       `${process.env.DEV_FRONTEND_URL}/payment-success?reference=${razorpay_payment_id}`
     );
