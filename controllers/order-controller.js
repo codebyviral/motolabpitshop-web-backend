@@ -139,25 +139,25 @@ const guestCheckout = async (req, res) => {
     const shippingAddress = address;
     
     // Check if the user already exists
-    const userExists = await User.findOne({ email });
+    // const userExists = await User.findOne({ email });
     
     let user, newOrder;
     
-    if (userExists) {
-      // If the user exists, use the existing user
-      user = userExists;
-    } else {
-      // If the user does not exist, create a new guest user
-      user = new User({
-        fullName,
-        email,
-        phoneNumber,
-        address: [{ addressLine1: shippingAddress }], // Store the address in the user's address array
-        isGuest: true, // Mark the user as a guest
-      });
+    // if (userExists) {
+    //   // If the user exists, use the existing user
+    //   user = userExists;
+    // } else {
+    //   // If the user does not exist, create a new guest user
+    //   user = new User({
+    //     fullName,
+    //     email,
+    //     phoneNumber,
+    //     address: [{ addressLine1: shippingAddress }], // Store the address in the user's address array
+    //     isGuest: true, // Mark the user as a guest
+    //   });
       
-      await user.save();
-    }
+    //   await user.save();
+    // }
     
     // Create the order
     newOrder = new Order({
