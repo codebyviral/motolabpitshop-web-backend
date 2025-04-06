@@ -1,6 +1,10 @@
+import { response } from "express";
 import { Order } from "../models/order.model.js";
 import { Product } from "../models/product.model.js";
 import {sendAdminEmail} from "../services/email.admin.service.js"
+import bcrypt from "bcryptjs";
+import { User } from "../models/user.model.js";
+import { passwordOtpEmail } from "../services/password-otp.service.js";
 const getOrders = async (req, res) => {
   try {
     // Get all orders with populated user and product data
@@ -143,6 +147,9 @@ const updateOrderStatus = async (req, res) => {
 
 }
 
-const adminControllers = { getOrders, updateOrderStatus ,SendEmailByAdmin };
+
+
+
+const adminControllers = { getOrders, updateOrderStatus, SendEmailByAdmin};
 
 export { adminControllers };

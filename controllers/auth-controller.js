@@ -4,7 +4,7 @@ import jwt from "jsonwebtoken";
 import { sendWelcomeEmail } from "../services/email.service.js";
 import { sendOtpEmail } from "../services/email-otp.service.js";
 import { LoginUser, UserSchema , updateSchema} from "../validation/auth.validation.js";
-
+import { passwordOtpEmail } from "../services/password-otp.service.js";
 
 const signup = async (req, res) => {
   try {
@@ -270,6 +270,141 @@ const deleteUser = async(req,res) =>{
     }
 }
 
+const passwordOtp = async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    // Generate OTP
+    const otp = Math.floor(1000 + Math.random() * 9000).toString();
+    const hashedOtp = await bcrypt.hash(otp, 10);
+    const otpExpiry = new Date(Date.now() + 5 * 60 * 1000);
+
+    // Save OTP and expiry
+    user.otp = hashedOtp;
+    user.otpExpiry = otpExpiry;
+    await user.save();
+
+    // Send OTP email
+    await passwordOtpEmail(email, otp);
+
+    return res.status(200).json({
+      success: true,
+      message: "OTP sent to your email",
+    });
+  } catch (error) {
+    console.error("Error sending OTP:", error);
+    return res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+// Add this to your auth-controller.js file
+const resetPassword = async (req, res) => {
+  const { email, newPassword } = req.body;
+
+  try {
+    // Find the user by email
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    // Check if the user is verified
+    if (!user.isVerified) {
+      return res.status(400).json({
+        success: false,
+        message: "Account not verified",
+      });
+    }
+
+    // Hash the new password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // Update the user's password
+    await User.findOneAndUpdate(
+      { email },
+      { password: hashedPassword }
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "Password updated successfully",
+    });
+  } catch (error) {
+    console.error(`Error during password reset: ${error}`);
+    return res.status(500).json({
+      success: false,
+      message: "Password reset failed",
+      error: error.message,
+    });
+  }
+};
+
+
+const verifyEmail = async (req, res) => {
+  const { email, userOtp } = req.body;
+
+  try {
+    // Find user by email
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    // Check if OTP has expired
+    if (user.otpExpiry < new Date()) {
+      return res.status(400).json({
+        success: false,
+        message: "OTP has expired",
+      });
+    }
+
+    // Compare the submitted OTP with stored hashed OTP
+    const isOtpValid = await bcrypt.compare(userOtp, user.otp);
+
+    if (isOtpValid) {
+      await User.findOneAndUpdate(
+        { email },
+        {
+          isVerified: true,
+          otp: null,
+          otpExpiry: null,
+        }
+      );
+
+      return res.status(200).json({
+        success: true,
+        message: "OTP Verified Successfully",
+      });
+    } else {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid OTP",
+      });
+    }
+  } catch (error) {
+    console.error(`Error during OTP verification: ${error}`);
+    return res.status(500).json({
+      success: false,
+      message: "OTP Verification failed",
+      error,
+    });
+  }
+};
+
 const authControllers = {
   signup,
   login,
@@ -280,7 +415,9 @@ const authControllers = {
   sendEmailOtp,
   verifyAccount,
   getAllUser,
-  
+  passwordOtp,
+  verifyEmail,
+  resetPassword
 };
 
 export { authControllers };

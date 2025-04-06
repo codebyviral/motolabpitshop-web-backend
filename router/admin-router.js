@@ -6,8 +6,7 @@ const router = express.Router();
 
 router.get("/get-orders", verifyJWT, adminControllers.getOrders);
 router.post("/send-email", verifyAdmin, adminControllers.SendEmailByAdmin);
-router.put("/update-status",verifyJWT,adminControllers.updateOrderStatus)
-
+router.put("/update-status",verifyJWT,adminControllers.updateOrderStatus);
 export default router;
 
 
