@@ -116,7 +116,7 @@ const otpEmailTemplate = (name, email, otp) => `<!DOCTYPE html>
         </div>
         
         <div class="expiry-note">
-            This code will expire in 30 minutes.
+            This code will expire in 5 minutes.
         </div>
         
         <div class="security-note">
@@ -124,10 +124,6 @@ const otpEmailTemplate = (name, email, otp) => `<!DOCTYPE html>
         </div>
         
         <p>Once verified, you'll have full access to your MotoLab PitShop account and can start shopping for premium motorcycle parts, accessories, and apparel.</p>
-        
-        <center>
-            <a href="https://motolabpitshop.com/verify" class="button">VERIFY YOUR ACCOUNT</a>
-        </center>
     </div>
     <div class="footer">
         <p>This email was sent to ${email}. If you have any questions, please contact our support team at support@motolabpitshop.com</p>
