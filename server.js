@@ -29,14 +29,14 @@ const clientSecret = process.env.CLIENT_SECRET;
 const devFrontendUrl = process.env.DEV_FRONTEND_URL;
 
 const corsOptions = {
-  origin: ["https://motolabpitshop.vercel.app","https://motolab-admin.vercel.app",],
+  origin: ["https://www.motolabpit.shop","https://motolab-admin.vercel.app",],
   credentials: true,
   methods: "GET, POST, DELETE, PATCH, HEAD, PUT, OPTIONS",
   allowedHeaders: [
     "Content-Type",
     "Authorization",
     "Access-Control-Allow-Credentials",
-    "cache-control"
+    "cache-control",
   ],
   exposedHeaders: ["Authorization"],
 };
@@ -48,7 +48,7 @@ app.use(express.json());
 app.use(cors(corsOptions));
 
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static('/tmp', { index: false }));
+app.use(express.static("/tmp", { index: false }));
 app.use(express.static(path.join(__dirname, "public"), { index: false }));
 app.use(cookieParser());
 
