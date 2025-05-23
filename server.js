@@ -41,6 +41,22 @@ const corsOptions = {
   exposedHeaders: ["Authorization"],
 };
 
+// dev cors options
+
+const devCorsOptions = {
+  origin: 'http://localhost:5173',
+  credentials: true,
+  methods: "GET, POST, DELETE, PATCH, HEAD, PUT, OPTIONS",
+  allowedHeaders: [
+    "Content-Type",
+    "Authorization",
+    "Access-Control-Allow-Credentials",
+    "cache-control",
+  ],
+  exposedHeaders: ["Authorization"],
+};
+
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
